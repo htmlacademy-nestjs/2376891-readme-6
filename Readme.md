@@ -1,7 +1,7 @@
 # Личный проект «Readme»
 
 * Студент: [Snezhana Sterkhova](https://up.htmlacademy.ru/nodejs-2/6/user/2376891).
-* Наставник: `Неизвестно`.
+* Наставник: `Константин Ильин`.
 
 ---
 
