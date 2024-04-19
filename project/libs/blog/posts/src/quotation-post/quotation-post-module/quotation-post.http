@@ -1,0 +1,40 @@
+# Create a new post
+POST http://localhost:3000/api/posts/quotation/ghfj456cbdj HTTP/1.1
+Content-Type: application/json
+
+{
+  "text": "sssssssssssssssssss",
+  "quotationAuthor": "fhdgdjdf7dfsdf",
+  "tags": [
+    "#aaa",
+    "#bbb",
+    "#ccc"
+  ]
+}
+
+###
+
+# Get post by ID
+GET http://localhost:3000/api/posts/quotation/9798bfcb-1b0b-4183-ae73-a24157f2ecfe HTTP/1.1
+
+###
+
+# Update post
+PATCH http://localhost:3000/api/posts/quotation/ghfj456cbdj/9798bfcb-1b0b-4183-ae73-a24157f2ecfe HTTP/1.1
+Content-Type: application/json
+
+{
+  "text": "AAA"
+}
+
+###
+
+# Delete post by ID
+DELETE http://localhost:3000/api/posts/quotation/ghfj456cbdj/9798bfcb-1b0b-4183-ae73-a24157f2ecfe HTTP/1.1
+
+###
+
+# Repost post
+POST http://localhost:3000/api/posts/quotation/ghfj456cbdj/2 HTTP/1.1
+
+###
