@@ -2,12 +2,12 @@ import { Entity, IPhotoPost, IStorableEntity } from '@project/core';
 
 export class PhotoPostEntity extends Entity implements IStorableEntity<IPhotoPost> {
   public originalId?: string;
-  public creationDate: Date;
-  public publicationDate: Date;
+  public createdAt: Date;
+  public updatedAt: Date;
   public tags: string[];
   public photo: string;
-  public author: string;
-  public originalAuthor: string;
+  public userId: string;
+  public originalUserId: string;
   public isRepost: boolean;
 
   constructor(post?: IPhotoPost) {
@@ -20,29 +20,29 @@ export class PhotoPostEntity extends Entity implements IStorableEntity<IPhotoPos
       return;
     }
 
-    const { id, tags, photo, author } = post;
+    const { id, tags, photo, userId } = post;
 
     this.id = id ?? '';
-    this.creationDate = post.creationDate ?? new Date();
-    this.publicationDate = post.publicationDate ?? new Date();
+    this.createdAt = post.createdAt ?? new Date();
+    this.updatedAt = post.updatedAt ?? new Date();
     this.tags = tags ?? [];
     this.photo = photo;
-    this.author = author;
+    this.userId = userId;
     this.isRepost = post.isRepost ?? false;
     this.originalId = post.originalId ?? '';
-    this.originalAuthor = post.originalAuthor ?? '';
+    this.originalUserId = post.originalUserId ?? '';
   }
 
   public toPOJO(): IPhotoPost {
     return {
       id: this.id,
       originalId: this.originalId,
-      creationDate: this.creationDate,
-      publicationDate: this.publicationDate,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
       tags: this.tags,
       photo: this.photo,
-      author: this.author,
-      originalAuthor: this.originalAuthor,
+      userId: this.userId,
+      originalUserId: this.originalUserId,
       isRepost: this.isRepost,
     }
   }

@@ -2,13 +2,13 @@ import { Entity, IVideoPost, IStorableEntity } from '@project/core';
 
 export class VideoPostEntity extends Entity implements IStorableEntity<IVideoPost> {
   public originalId?: string;
-  public creationDate: Date;
-  public publicationDate: Date;
+  public createdAt: Date;
+  public updatedAt: Date;
   public tags: string[];
   public name: string;
   public url: string;
-  public author: string;
-  public originalAuthor: string;
+  public userId: string;
+  public originalUserId: string;
   public isRepost: boolean;
 
   constructor(post?: IVideoPost) {
@@ -21,31 +21,31 @@ export class VideoPostEntity extends Entity implements IStorableEntity<IVideoPos
       return;
     }
 
-    const { id, tags, name, url, author } = post;
+    const { id, tags, name, url, userId } = post;
 
     this.id = id ?? '';
-    this.creationDate = post.creationDate ?? new Date();
-    this.publicationDate = post.publicationDate ?? new Date();
+    this.createdAt = post.createdAt ?? new Date();
+    this.updatedAt = post.updatedAt ?? new Date();
     this.tags = tags ?? [];
     this.name = name;
     this.url = url;
-    this.author = author;
+    this.userId = userId;
     this.isRepost = post.isRepost ?? false;
     this.originalId = post.originalId ?? '';
-    this.originalAuthor = post.originalAuthor ?? '';
+    this.originalUserId = post.originalUserId ?? '';
   }
 
   public toPOJO(): IVideoPost {
     return {
       id: this.id,
       originalId: this.originalId,
-      creationDate: this.creationDate,
-      publicationDate: this.publicationDate,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
       tags: this.tags,
       name: this.name,
       url: this.url,
-      author: this.author,
-      originalAuthor: this.originalAuthor,
+      userId: this.userId,
+      originalUserId: this.originalUserId,
       isRepost: this.isRepost,
     }
   }
