@@ -15,7 +15,7 @@ export class QuotationPostService {
   public async createPost(dto: CreateQuotationPostDto, userId: string): Promise<QuotationPostEntity> {
     const { tags, text, quotationAuthor } = dto;
 
-    const blogPost = { tags, text, quotationAuthor, author: userId };
+    const blogPost = { tags, text, quotationAuthor, userId };
 
     const postEntity = new QuotationPostEntity(blogPost);
     await this.quotationPostRepository.save(postEntity);
@@ -34,14 +34,14 @@ export class QuotationPostService {
   }
 
   public async updatePost(userId: string, offerId: string, dto: UpdateQuotationPostDto) {
-    const { tags, text, quotationAuthor, publicationDate } = dto;
+    const { tags, text, quotationAuthor, updatedAt } = dto;
     const existPost = await this.findPostById(offerId);
 
-    if (existPost.author !== userId) {
+    if (existPost.userId !== userId) {
       throw new UnauthorizedException(QUOTATION_POST_OPERATION_PERMISSION);
     }
 
-    const updatedPost = { ...existPost, publicationDate: publicationDate ?? new Date(), tags, text, quotationAuthor };
+    const updatedPost = { ...existPost, updatedAt: updatedAt ?? new Date(), tags, text, quotationAuthor };
     const postEntity = await new QuotationPostEntity(updatedPost);
     await this.quotationPostRepository.update(postEntity);
 
@@ -50,7 +50,7 @@ export class QuotationPostService {
 
   public async deletePost(userId: string, offerId: string) {
     const deletedPost = await this.quotationPostRepository.findById(offerId);
-    if (deletedPost.author !== userId) {
+    if (deletedPost.userId !== userId) {
       throw new UnauthorizedException(QUOTATION_POST_OPERATION_PERMISSION);
     }
 
@@ -60,7 +60,7 @@ export class QuotationPostService {
 
   public async repostPost(userId: string, offerId: string) {
     const post = await this.findPostById(offerId);
-    const { id, creationDate, tags, text, quotationAuthor, author } = post;
+    const { id, createdAt, tags, text, quotationAuthor } = post;
 
     if (post?.isRepost) {
       throw new ConflictException(QUOTATION_POST_CONFLICT);
@@ -69,11 +69,11 @@ export class QuotationPostService {
     const blogPost = {
       originalId: id,
       id: '',
-      creationDate,
-      publicationDate: new Date(),
+      createdAt,
+      updatedAt: new Date(),
       tags, text, quotationAuthor,
-      originalAuthor: author,
-      author: userId,
+      originalUserId: post.userId,
+      userId,
       isRepost: true,
     };
 

@@ -2,14 +2,14 @@ import { Entity, ITextPost, IStorableEntity } from '@project/core';
 
 export class TextPostEntity extends Entity implements IStorableEntity<ITextPost> {
   public originalId?: string;
-  public creationDate: Date;
-  public publicationDate: Date;
+  public createdAt: Date;
+  public updatedAt: Date;
   public tags: string[];
   public name: string;
   public title: string;
   public text: string;
-  public author: string;
-  public originalAuthor: string;
+  public userId: string;
+  public originalUserId: string;
   public isRepost: boolean;
 
   constructor(post?: ITextPost) {
@@ -22,33 +22,33 @@ export class TextPostEntity extends Entity implements IStorableEntity<ITextPost>
       return;
     }
 
-    const { id, tags, name, title, text, author } = post;
+    const { id, tags, name, title, text, userId } = post;
 
     this.id = id ?? '';
-    this.creationDate = post.creationDate ?? new Date();
-    this.publicationDate = post.publicationDate ?? new Date();
+    this.createdAt = post.createdAt ?? new Date();
+    this.updatedAt = post.updatedAt ?? new Date();
     this.tags = tags ?? [];
     this.name = name;
     this.title = title;
     this.text = text;
-    this.author = author;
+    this.userId = userId;
     this.isRepost = post.isRepost ?? false;
     this.originalId = post.originalId ?? '';
-    this.originalAuthor = post.originalAuthor ?? '';
+    this.originalUserId = post.originalUserId ?? '';
   }
 
   public toPOJO(): ITextPost {
     return {
       id: this.id,
       originalId: this.originalId,
-      creationDate: this.creationDate,
-      publicationDate: this.publicationDate,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
       tags: this.tags,
       name: this.name,
       title: this.title,
       text: this.text,
-      author: this.author,
-      originalAuthor: this.originalAuthor,
+      userId: this.userId,
+      originalUserId: this.originalUserId,
       isRepost: this.isRepost,
     }
   }

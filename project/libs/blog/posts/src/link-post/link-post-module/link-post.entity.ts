@@ -2,13 +2,13 @@ import { Entity, ILinkPost, IStorableEntity } from '@project/core';
 
 export class LinkPostEntity extends Entity implements IStorableEntity<ILinkPost> {
   public originalId?: string;
-  public creationDate: Date;
-  public publicationDate: Date;
+  public createdAt: Date;
+  public updatedAt: Date;
   public tags: string[];
   public url: string;
   public description: string;
-  public author: string;
-  public originalAuthor: string;
+  public userId: string;
+  public originalUserId: string;
   public isRepost: boolean;
 
   constructor(post?: ILinkPost) {
@@ -21,31 +21,31 @@ export class LinkPostEntity extends Entity implements IStorableEntity<ILinkPost>
       return;
     }
 
-    const { id, tags, url, description, author } = post;
+    const { id, tags, url, description, userId } = post;
 
     this.id = id ?? '';
-    this.creationDate = post.creationDate ?? new Date();
-    this.publicationDate = post.publicationDate ?? new Date();
+    this.createdAt = post.createdAt ?? new Date();
+    this.updatedAt = post.updatedAt ?? new Date();
     this.tags = tags ?? [];
     this.url = url;
     this.description = description;
-    this.author = author;
+    this.userId = userId;
     this.isRepost = post.isRepost ?? false;
     this.originalId = post.originalId ?? '';
-    this.originalAuthor = post.originalAuthor ?? '';
+    this.originalUserId = post.originalUserId ?? '';
   }
 
   public toPOJO(): ILinkPost {
     return {
       id: this.id,
       originalId: this.originalId,
-      creationDate: this.creationDate,
-      publicationDate: this.publicationDate,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
       tags: this.tags,
       url: this.url,
       description: this.description,
-      author: this.author,
-      originalAuthor: this.originalAuthor,
+      userId: this.userId,
+      originalUserId: this.originalUserId,
       isRepost: this.isRepost,
     }
   }

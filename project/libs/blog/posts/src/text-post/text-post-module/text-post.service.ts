@@ -15,7 +15,7 @@ export class TextPostService {
   public async createPost(dto: CreateTextPostDto, userId: string): Promise<TextPostEntity> {
     const { tags, name, title, text } = dto;
 
-    const blogPost = { tags, name, title, text, author: userId };
+    const blogPost = { tags, name, title, text, userId };
 
     const postEntity = new TextPostEntity(blogPost);
     await this.textPostRepository.save(postEntity);
@@ -34,14 +34,14 @@ export class TextPostService {
   }
 
   public async updatePost(userId: string, offerId: string, dto: UpdateTextPostDto) {
-    const { tags, name, title, text, publicationDate } = dto;
+    const { tags, name, title, text, updatedAt } = dto;
     const existPost = await this.findPostById(offerId);
 
-    if (existPost.author !== userId) {
+    if (existPost.userId !== userId) {
       throw new UnauthorizedException(TEXT_POST_OPERATION_PERMISSION);
     }
 
-    const updatedPost = { ...existPost, publicationDate: publicationDate ?? new Date(), tags, name, title, text };
+    const updatedPost = { ...existPost, updatedAt: updatedAt ?? new Date(), tags, name, title, text };
     const postEntity = await new TextPostEntity(updatedPost);
     await this.textPostRepository.update(postEntity);
 
@@ -50,7 +50,7 @@ export class TextPostService {
 
   public async deletePost(userId: string, offerId: string) {
     const deletedPost = await this.textPostRepository.findById(offerId);
-    if (deletedPost.author !== userId) {
+    if (deletedPost.userId !== userId) {
       throw new UnauthorizedException(TEXT_POST_OPERATION_PERMISSION);
     }
 
@@ -60,7 +60,7 @@ export class TextPostService {
 
   public async repostPost(userId: string, offerId: string) {
     const post = await this.findPostById(offerId);
-    const { id, creationDate, tags, name, title, text, author } = post;
+    const { id, createdAt, tags, name, title, text } = post;
 
     if (post?.isRepost) {
       throw new ConflictException(TEXT_POST_CONFLICT);
@@ -69,11 +69,11 @@ export class TextPostService {
     const blogPost = {
       originalId: id,
       id: '',
-      creationDate,
-      publicationDate: new Date(),
+      createdAt,
+      updatedAt: new Date(),
       tags, name, title, text,
-      originalAuthor: author,
-      author: userId,
+      originalUserId: post.userId,
+      userId,
       isRepost: true,
     };
 

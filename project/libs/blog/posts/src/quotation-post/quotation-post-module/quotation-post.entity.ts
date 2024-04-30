@@ -2,13 +2,13 @@ import { Entity, IQuotationPost, IStorableEntity } from '@project/core';
 
 export class QuotationPostEntity extends Entity implements IStorableEntity<IQuotationPost> {
   public originalId?: string;
-  public creationDate: Date;
-  public publicationDate: Date;
+  public createdAt: Date;
+  public updatedAt: Date;
   public tags: string[];
   public text: string;
   public quotationAuthor: string;
-  public author: string;
-  public originalAuthor: string;
+  public userId: string;
+  public originalUserId: string;
   public isRepost: boolean;
 
   constructor(post?: IQuotationPost) {
@@ -21,31 +21,31 @@ export class QuotationPostEntity extends Entity implements IStorableEntity<IQuot
       return;
     }
 
-    const { id, tags, text, quotationAuthor, quotationAuthor: author } = post;
+    const { id, tags, text, quotationAuthor, userId } = post;
 
     this.id = id ?? '';
-    this.creationDate = post.creationDate ?? new Date();
-    this.publicationDate = post.publicationDate ?? new Date();
+    this.createdAt = post.createdAt ?? new Date();
+    this.updatedAt = post.updatedAt ?? new Date();
     this.tags = tags ?? [];
     this.text = text;
     this.quotationAuthor = quotationAuthor;
-    this.author = author;
+    this.userId = userId;
     this.isRepost = post.isRepost ?? false;
     this.originalId = post.originalId ?? '';
-    this.originalAuthor = post.originalAuthor ?? '';
+    this.originalUserId = post.originalUserId ?? '';
   }
 
   public toPOJO(): IQuotationPost {
     return {
       id: this.id,
       originalId: this.originalId,
-      creationDate: this.creationDate,
-      publicationDate: this.publicationDate,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
       tags: this.tags,
       text: this.text,
       quotationAuthor: this.quotationAuthor,
-      author: this.author,
-      originalAuthor: this.originalAuthor,
+      userId: this.userId,
+      originalUserId: this.originalUserId,
       isRepost: this.isRepost,
     }
   }
