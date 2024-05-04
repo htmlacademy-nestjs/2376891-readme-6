@@ -24,7 +24,7 @@ export abstract class BasePostgresRepository<
     throw new Error('Not implemented');
   }
 
-  public async save(entity: T): Promise<void> {
+  public async save(entity: T): Promise<T> {
     throw new Error('Not implemented');
   }
 

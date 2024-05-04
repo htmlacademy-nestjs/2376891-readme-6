@@ -24,9 +24,9 @@ model Post {
   originalUserId  String @map("original_user_id")
   isRepost        Boolean @map("is_repost")
   comments Comment[]
-  likes Like[]
+  // likes Like[]
 
-  // @@index([title])
+  @@index([id])
   @@map("posts")
 }
 
@@ -43,13 +43,13 @@ model Comment {
   @@map("comments")
 }
 
-model Like {
-  id        String   @id @default(uuid())
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String   @map("post_id")
-  userId    String   @map("user_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+// model Like {
+//   id        String   @id @default(uuid())
+//   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+//   postId    String   @map("post_id")
+//   userId    String   @map("user_id")
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("likes")
-}
+//   @@map("likes")
+// }
