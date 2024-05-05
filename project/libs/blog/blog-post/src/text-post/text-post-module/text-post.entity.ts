@@ -6,38 +6,40 @@ export class TextPostEntity extends Entity implements IStorableEntity<ITextPost>
   public createdAt?: Date;
   public updatedAt?: Date;
   public tags: string[];
-  public name: string;
-  public title: string;
-  public text: string;
   public userId: string;
   public originalUserId: string;
   public isRepost: boolean;
   public comments: BlogCommentEntity[];
+  public likes: [];
 
-  constructor(post?: ITextPost) {
+  public name: string;
+  public title: string;
+  public text: string;
+
+  constructor(post?: ITextPost, userId?: string) {
     super();
-    this.populate(post);
+    this.populate(post, userId);
   }
 
-  public populate(post?: ITextPost): void {
+  public populate(post?: ITextPost, userId?: string): void {
     if (!post) {
       return;
     }
 
-    const { id, tags, name, title, text, userId } = post;
-
-    this.id = id ?? '';
+    this.id = post.id ?? '';
+    this.originalId = post.originalId ?? '';
     this.createdAt = post.createdAt ?? new Date();
     this.updatedAt = post.updatedAt ?? new Date();
-    this.tags = tags ?? [];
-    this.name = name;
-    this.title = title;
-    this.text = text;
-    this.userId = userId;
-    this.isRepost = post.isRepost ?? false;
-    this.originalId = post.originalId ?? '';
+    this.tags = post.tags ?? [];
+    this.userId = userId ?? post.userId;
     this.originalUserId = post.originalUserId ?? '';
+    this.isRepost = post.isRepost ?? false;
     this.comments = [];
+    // this.likes = [];
+
+    this.name = post.name;
+    this.title = post.title;
+    this.text = post.text;
 
     const blogCommentFactory = new BlogCommentFactory();
     for (const comment of post.comments) {
@@ -53,13 +55,15 @@ export class TextPostEntity extends Entity implements IStorableEntity<ITextPost>
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       tags: this.tags,
-      name: this.name,
-      title: this.title,
-      text: this.text,
       userId: this.userId,
       originalUserId: this.originalUserId,
       isRepost: this.isRepost,
       comments: this.comments.map((commentEntity) => commentEntity.toPOJO()),
+      // likes: this.likes,
+
+      name: this.name,
+      title: this.title,
+      text: this.text,
     }
   }
 }

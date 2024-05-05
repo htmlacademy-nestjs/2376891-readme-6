@@ -1,85 +1,112 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
-import { PhotoPostRepository } from './photo-post.repository';
+import { BlogCommentEntity, BlogCommentFactory, BlogCommentRepository, CreateCommentDto } from '@project/blog-comment';
+import { IPaginationResult } from '@project/core';
+
 import { CreatePhotoPostDto } from '../dto/create-photo-post.dto';
 import { PhotoPostEntity } from './photo-post.entity';
-import { PHOTO_POST_CONFLICT, PHOTO_POST_NOT_FOUND, PHOTO_POST_OPERATION_PERMISSION } from './photo-post.constant';
+import { PhotoPostRepository } from './photo-post.repository';
+import { POST_CONFLICT, POST_NOT_FOUND, POST_OPERATION_PERMISSION } from '../../post.constant';
 import { UpdatePhotoPostDto } from '../dto/update-photo-post.dto';
+import { PhotoPostQuery } from './photo-post.query';
 
 @Injectable()
 export class PhotoPostService {
   constructor(
-    private readonly photoPostRepository: PhotoPostRepository
+    private readonly photoPostRepository: PhotoPostRepository,
+    private readonly blogCommentRepository: BlogCommentRepository,
+    private readonly blogCommentFactory: BlogCommentFactory,
   ) { }
 
+  public async getAllPosts(query?: PhotoPostQuery): Promise<IPaginationResult<PhotoPostEntity>> {
+    return this.photoPostRepository.find(query);
+  }
+
   public async createPost(dto: CreatePhotoPostDto, userId: string): Promise<PhotoPostEntity> {
-    const { tags, photo } = dto;
-
-    const blogPost = { tags, photo, userId };
-
-    const postEntity = new PhotoPostEntity(blogPost);
-    await this.photoPostRepository.save(postEntity);
-
-    return postEntity;
+    const postEntity = new PhotoPostEntity(dto, userId);
+    return await this.photoPostRepository.save(postEntity);
   }
 
   public async findPostById(id: string): Promise<PhotoPostEntity> {
     const post = await this.photoPostRepository.findById(id);
 
     if (!post) {
-      throw new NotFoundException(PHOTO_POST_NOT_FOUND);
+      throw new NotFoundException(POST_NOT_FOUND);
     }
 
     return post;
   }
 
-  public async updatePost(userId: string, offerId: string, dto: UpdatePhotoPostDto) {
-    const { tags, photo, updatedAt } = dto;
-    const existPost = await this.findPostById(offerId);
+  public async updatePost(userId: string, offerId: string, dto: UpdatePhotoPostDto): Promise<PhotoPostEntity> {
+      const existPost = await this.findPostById(offerId);
+      let hasChanges = false;
 
-    if (existPost.userId !== userId) {
-      throw new UnauthorizedException(PHOTO_POST_OPERATION_PERMISSION);
+      if (existPost.userId !== userId) {
+        throw new UnauthorizedException(POST_OPERATION_PERMISSION);
+      }
+
+      for (const [key, value] of Object.entries(dto)) {
+        if (value !== undefined && existPost[key] !== value) {
+          existPost[key] = value;
+          hasChanges = true;
+        }
+      }
+
+      if (!hasChanges) {
+        return existPost;
+      }
+      await this.photoPostRepository.update(existPost);
+
+      return existPost;
     }
 
-    const updatedPost = { ...existPost, updatedAt: updatedAt ?? new Date(), tags, photo };
-    const postEntity = await new PhotoPostEntity(updatedPost);
-    await this.photoPostRepository.update(postEntity);
-
-    return postEntity;
-  }
-
-  public async deletePost(userId: string, offerId: string) {
+  public async deletePost(userId: string, offerId: string): Promise<void> {
     const deletedPost = await this.photoPostRepository.findById(offerId);
     if (deletedPost.userId !== userId) {
-      throw new UnauthorizedException(PHOTO_POST_OPERATION_PERMISSION);
+      throw new UnauthorizedException(POST_OPERATION_PERMISSION);
     }
 
-    await this.photoPostRepository.deleteById(offerId);
-    return deletedPost;
+    try {
+      await this.photoPostRepository.deleteById(offerId);
+    } catch {
+      throw new NotFoundException(`Post with ID ${offerId} not found`);
+    }
   }
 
-  public async repostPost(userId: string, offerId: string) {
-    const post = await this.findPostById(offerId);
-    const { id, createdAt, tags, photo } = post;
+  public async repostPost(userId: string, offerId: string): Promise<PhotoPostEntity> {
+    const existPost = await this.findPostById(offerId);
 
-    if (post?.isRepost) {
-      throw new ConflictException(PHOTO_POST_CONFLICT);
+    if (existPost?.isRepost) {
+      throw new ConflictException(POST_CONFLICT);
     }
 
-    const blogPost = {
-      originalId: id,
-      id: '',
-      createdAt,
-      updatedAt: new Date(),
-      tags, photo,
-      originalUserId: post.userId,
-      userId,
-      isRepost: true,
-    };
+    existPost.originalId = existPost.id;
+    existPost.updatedAt = new Date();
+    existPost.originalUserId = existPost.userId;
+    existPost.userId = userId;
+    existPost.isRepost = true;
+    // const blogPost = {
+    //   originalId: id,
+    //   id: '',
+    //   createdAt,
+    //   updatedAt: new Date(),
+    //   tags, url, description,
+    //   originalUserId: existPost.userId,
+    //   userId,
+    //   isRepost: true,
+    // };
 
-    const postEntity = await new PhotoPostEntity(blogPost);
-    await this.photoPostRepository.save(postEntity);
+    // const postEntity = await new PhotoPostEntity(blogPost);
+    await this.photoPostRepository.save(existPost);
 
-    return postEntity;
+    return existPost;
+  }
+
+  public async addComment(postId: string, dto: CreateCommentDto): Promise<BlogCommentEntity> {
+    const existsPost = await this.findPostById(postId);
+    const newComment = this.blogCommentFactory.createFromDto(dto, existsPost.id);
+    await this.blogCommentRepository.save(newComment);
+
+    return newComment;
   }
 }

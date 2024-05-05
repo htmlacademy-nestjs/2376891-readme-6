@@ -5,8 +5,7 @@ import { SortDirection } from '@project/core';
 
 import { DEFAULT_POST_COUNT_LIMIT, DEFAULT_SORT_DIRECTION, DEFAULT_PAGE_COUNT } from '../../post.constant';
 
-
-export class LinkPostQuery {
+export class TextPostQuery {
   @Transform(({ value }) => +value || DEFAULT_POST_COUNT_LIMIT)
   @IsNumber()
   @IsOptional()

@@ -1,13 +1,16 @@
-import { Body, Controller, Post, Get, HttpStatus, Param, Patch, Delete } from '@nestjs/common';
+import { Body, Controller, Post, Get, HttpStatus, Param, Patch, Delete, ValidationPipe, ParseUUIDPipe, Query, HttpCode } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { fillDto } from '@project/helpers';
 
-import { QuotationPostService } from './quotation-post.service';
-import { CreateQuotationPostDto } from '../dto/create-quotation-post.dto';
+import { CommentRdo, CreateCommentDto } from '@project/blog-comment';
 import { QuotationPostRdo } from '../rdo/quotation-post.rdo';
-import { UpdateQuotationPostDto } from '../dto/update-quotation-post.dto';
+import { QuotationPostService } from './quotation-post.service';
 import { PostResponseMessage } from '../../post.constant';
+import { CreateQuotationPostDto } from '../dto/create-quotation-post.dto';
+import { QuotationPostWithPaginationRdo } from '../rdo/quotation-post-with-pagination.rdo';
+import { UpdateQuotationPostDto } from '../dto/update-quotation-post.dto';
+import { QuotationPostQuery } from './quotation-post.query';
 
 @ApiTags('quotation-post')
 @Controller('posts/quotation')
@@ -16,14 +19,33 @@ export class QuotationPostController {
     private readonly quotationPostService: QuotationPostService
   ) { }
 
+  @Post('/')
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: QuotationPostRdo,
     description: PostResponseMessage.PostCreated,
   })
-  @Post(':userId')
-  public async create(@Param() userId: string, @Body() dto: CreateQuotationPostDto): Promise<QuotationPostRdo> {
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+  })
+  public async create(@Body(new ValidationPipe()) dto: CreateQuotationPostDto, @Param() userId: string): Promise<QuotationPostRdo> {
     const newPost = await this.quotationPostService.createPost(dto, userId);
     return fillDto(QuotationPostRdo, newPost.toPOJO());
+  }
+
+  @Get(':id')
+  @ApiResponse({
+    type: QuotationPostRdo,
+    status: HttpStatus.OK,
+    description: PostResponseMessage.PostFound,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: PostResponseMessage.PostNotFound,
+  })
+  public async show(@Param('id', ParseUUIDPipe) id: string): Promise<QuotationPostRdo> {
+    const foundPost = await this.quotationPostService.findPostById(id);
+    return fillDto(QuotationPostRdo, foundPost.toPOJO());
   }
 
   @ApiResponse({
@@ -35,10 +57,14 @@ export class QuotationPostController {
     status: HttpStatus.NOT_FOUND,
     description: PostResponseMessage.PostNotFound,
   })
-  @Get(':id')
-  public async show(@Param('id') id: string): Promise<QuotationPostRdo> {
-    const foundPost = await this.quotationPostService.findPostById(id);
-    return fillDto(QuotationPostRdo, foundPost.toPOJO());
+  @Get('/')
+  public async index(@Query() query: QuotationPostQuery): Promise<QuotationPostWithPaginationRdo> {
+    const postsWithPagination = await this.quotationPostService.getAllPosts(query);
+    const result = {
+      ...postsWithPagination,
+      entities: postsWithPagination.entities.map((post) => post.toPOJO()),
+    }
+    return fillDto(QuotationPostWithPaginationRdo, result);
   }
 
   @ApiResponse({
@@ -53,10 +79,10 @@ export class QuotationPostController {
   @Patch(':userId/:offerId')
   public async update(
     @Param('userId') userId: string,
-    @Param('offerId') offerId: string,
-    @Body() dto: UpdateQuotationPostDto): Promise<QuotationPostRdo> {
-    const newPost = await this.quotationPostService.updatePost(userId, offerId, dto);
-    return fillDto(QuotationPostRdo, newPost.toPOJO());
+    @Param('postId', ParseUUIDPipe) postId: string,
+    @Body(new ValidationPipe()) dto: UpdateQuotationPostDto): Promise<QuotationPostRdo> {
+    const updatedPost = await this.quotationPostService.updatePost(userId, postId, dto);
+    return fillDto(QuotationPostRdo, updatedPost.toPOJO());
   }
 
   @ApiResponse({
@@ -69,9 +95,10 @@ export class QuotationPostController {
     description: PostResponseMessage.PostNotFound,
   })
   @Delete(':userId/:offerId')
-  public async delete(@Param('userId') userId: string, @Param('offerId') offerId: string): Promise<QuotationPostRdo> {
-    const deletedPost = await this.quotationPostService.deletePost(userId, offerId);
-    return fillDto(QuotationPostRdo, deletedPost.toPOJO());
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public async destroy(@Param('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<void> {
+    await this.quotationPostService.deletePost(userId, postId);
+    // return fillDto(QuotationPostRdo, deletedPost.toPOJO());
   }
 
   @ApiResponse({
@@ -84,8 +111,23 @@ export class QuotationPostController {
     description: PostResponseMessage.PostNotFound,
   })
   @Post(':userId/:offerId')
-  public async repost(@Param('userId') userId: string, @Param('offerId') offerId: string): Promise<QuotationPostRdo> {
-    const newPost = await this.quotationPostService.repostPost(userId, offerId);
+  public async repost(@Param('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<QuotationPostRdo> {
+    const newPost = await this.quotationPostService.repostPost(userId, postId);
     return fillDto(QuotationPostRdo, newPost.toPOJO());
+  }
+
+  @ApiResponse({
+    type: CommentRdo,
+    status: HttpStatus.OK,
+    // description: PostResponseMessage.PostReposted,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    // description: PostResponseMessage.PostNotFound,
+  })
+  @Post('/:postId/comments')
+  public async createComment(@Param('postId', ParseUUIDPipe) postId: string, @Body(new ValidationPipe()) dto: CreateCommentDto) {
+    const newComment = await this.quotationPostService.addComment(postId, dto);
+    return fillDto(CommentRdo, newComment.toPOJO());
   }
 }
