@@ -6,6 +6,8 @@ export { IPaginationResult } from './lib/interfaces/pagination.interface';
 export { SortDirection } from './lib/interfaces/sort-direction.interface';
 export { IToken } from './lib/interfaces/token.interface';
 export { ITokenPayload } from './lib/interfaces/token-payload.interface';
+export { IFile } from './lib/types/file-vault/file.interface';
+export { IStoredFile } from './lib/types/file-vault/stored-file.interface';
 
 export { IUser } from './lib/types/account/user.interface';
 export { IAuthUser } from './lib/types/account/auth-user.interface';
