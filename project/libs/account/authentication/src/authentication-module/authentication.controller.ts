@@ -3,6 +3,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MongoIdValidationPipe } from '@project/pipes';
 import { fillDto } from '@project/helpers';
+import { NotifyService } from '@project/account-notify';
 
 import { AuthenticationService } from './authentication.service';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -16,7 +17,8 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 @Controller('auth')
 export class AuthenticationController {
   constructor(
-    private readonly authService: AuthenticationService
+    private readonly authService: AuthenticationService,
+    private readonly notifyService: NotifyService,
   ) { }
 
   @ApiResponse({
@@ -30,6 +32,8 @@ export class AuthenticationController {
   @Post('register')
   public async create(@Body() dto: CreateUserDto) {
     const newUser = await this.authService.register(dto);
+    const { email, name } = newUser;
+    await this.notifyService.registerSubscriber({ email, name });
     return newUser.toPOJO();
   }
 

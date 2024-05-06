@@ -21,7 +21,7 @@ services:
     restart: always
     container_name: readme.account.mongo.ui
     ports:
-      - 8081:8081
+      - ${MONGO_LOCAL_PORT}:${MONGO_REMOTE_PORT}
     environment:
       ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_USER}
       ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_PASSWORD}
