@@ -3,7 +3,7 @@ import { ConflictException, Injectable, NotFoundException, UnauthorizedException
 import { CreateLinkPostDto } from '../dto/create-link-post.dto';
 import { LinkPostEntity } from './link-post.entity';
 import { LinkPostRepository } from './link-post.repository';
-import { LINK_POST_CONFLICT, LINK_POST_NOT_FOUND, LINK_POST_OPERATION_PERMISSION } from './link-post.constant';
+import { POST_CONFLICT, POST_NOT_FOUND, POST_OPERATION_PERMISSION } from '../../post.constant';
 import { UpdateLinkPostDto } from '../dto/update-link-post.dto';
 import { BlogCommentEntity, BlogCommentFactory, BlogCommentRepository, CreateCommentDto } from '@project/blog-comment';
 import { LinkPostQuery } from './link-post.query';
@@ -30,7 +30,7 @@ export class LinkPostService {
     const post = await this.linkPostRepository.findById(id);
 
     if (!post) {
-      throw new NotFoundException(LINK_POST_NOT_FOUND);
+      throw new NotFoundException(POST_NOT_FOUND);
     }
 
     return post;
@@ -41,7 +41,7 @@ export class LinkPostService {
       let hasChanges = false;
 
       if (existPost.userId !== userId) {
-        throw new UnauthorizedException(LINK_POST_OPERATION_PERMISSION);
+        throw new UnauthorizedException(POST_OPERATION_PERMISSION);
       }
 
       for (const [key, value] of Object.entries(dto)) {
@@ -62,7 +62,7 @@ export class LinkPostService {
   public async deletePost(userId: string, offerId: string): Promise<void> {
     const deletedPost = await this.linkPostRepository.findById(offerId);
     if (deletedPost.userId !== userId) {
-      throw new UnauthorizedException(LINK_POST_OPERATION_PERMISSION);
+      throw new UnauthorizedException(POST_OPERATION_PERMISSION);
     }
 
     try {
@@ -76,7 +76,7 @@ export class LinkPostService {
     const existPost = await this.findPostById(offerId);
 
     if (existPost?.isRepost) {
-      throw new ConflictException(LINK_POST_CONFLICT);
+      throw new ConflictException(POST_CONFLICT);
     }
 
     existPost.originalId = existPost.id;

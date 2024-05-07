@@ -6,36 +6,38 @@ export class VideoPostEntity extends Entity implements IStorableEntity<IVideoPos
   public createdAt?: Date;
   public updatedAt?: Date;
   public tags: string[];
-  public name: string;
-  public url: string;
   public userId: string;
   public originalUserId: string;
   public isRepost: boolean;
   public comments: BlogCommentEntity[];
+  public likes: [];
 
-  constructor(post?: IVideoPost) {
+  public name: string;
+  public url: string;
+
+  constructor(post?: IVideoPost, userId?: string) {
     super();
-    this.populate(post);
+    this.populate(post, userId);
   }
 
-  public populate(post?: IVideoPost): void {
+  public populate(post?: IVideoPost, userId?: string): void {
     if (!post) {
       return;
     }
 
-    const { id, tags, name, url: url, userId } = post;
-
-    this.id = id ?? '';
+    this.id = post.id ?? '';
+    this.originalId = post.originalId ?? '';
     this.createdAt = post.createdAt ?? new Date();
     this.updatedAt = post.updatedAt ?? new Date();
-    this.tags = tags ?? [];
-    this.name = name;
-    this.url = url;
-    this.userId = userId;
-    this.isRepost = post.isRepost ?? false;
-    this.originalId = post.originalId ?? '';
+    this.tags = post.tags ?? [];
+    this.userId = userId ?? post.userId;
     this.originalUserId = post.originalUserId ?? '';
+    this.isRepost = post.isRepost ?? false;
     this.comments = [];
+    // this.likes = [];
+
+    this.name = post.name;
+    this.url = post.url;
 
     const blogCommentFactory = new BlogCommentFactory();
     for (const comment of post.comments) {
@@ -51,12 +53,14 @@ export class VideoPostEntity extends Entity implements IStorableEntity<IVideoPos
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       tags: this.tags,
-      name: this.name,
-      url: this.url,
       userId: this.userId,
       originalUserId: this.originalUserId,
       isRepost: this.isRepost,
       comments: this.comments.map((commentEntity) => commentEntity.toPOJO()),
+      // likes: this.likes,
+
+      name: this.name,
+      url: this.url,
     }
   }
 }

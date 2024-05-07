@@ -8,7 +8,6 @@ import { CreateLinkPostDto } from '../dto/create-link-post.dto';
 import { UpdateLinkPostDto } from '../dto/update-link-post.dto';
 import { LinkPostRdo } from '../rdo/link-post.rdo';
 import { PostResponseMessage } from '../../post.constant';
-import { LinkPostResponseMessage } from './link-post.constant';
 import { LinkPostWithPaginationRdo } from '../rdo/link-post-with-pagination.rdo';
 import { CommentRdo, CreateCommentDto } from '@project/blog-comment';
 import { LinkPostQuery } from './link-post.query';
@@ -24,7 +23,7 @@ export class LinkPostController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: LinkPostRdo,
-    description: LinkPostResponseMessage.PostCreated,
+    description: PostResponseMessage.PostCreated,
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
@@ -38,11 +37,11 @@ export class LinkPostController {
   @ApiResponse({
     type: LinkPostRdo,
     status: HttpStatus.OK,
-    description: LinkPostResponseMessage.PostFound,
+    description: PostResponseMessage.PostFound,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: LinkPostResponseMessage.PostNotFound,
+    description: PostResponseMessage.PostNotFound,
   })
   public async show(@Param('id', ParseUUIDPipe) id: string): Promise<LinkPostRdo> {
     const foundPost = await this.linkPostService.findPostById(id);
@@ -52,11 +51,11 @@ export class LinkPostController {
   @ApiResponse({
     type: LinkPostRdo,
     status: HttpStatus.OK,
-    description: LinkPostResponseMessage.PostFound,
+    description: PostResponseMessage.PostFound,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: LinkPostResponseMessage.PostNotFound,
+    description: PostResponseMessage.PostNotFound,
   })
   @Get('/')
   public async index(@Query() query: LinkPostQuery): Promise<LinkPostWithPaginationRdo> {

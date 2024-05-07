@@ -1,85 +1,111 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
+import { BlogCommentEntity, BlogCommentFactory, BlogCommentRepository, CreateCommentDto } from '@project/blog-comment';
+import { IPaginationResult } from '@project/core';
+import { QuotationPostQuery } from './quotation-post.query';
 import { QuotationPostRepository } from './quotation-post.repository';
-import { CreateQuotationPostDto } from '../dto/create-quotation-post.dto';
 import { QuotationPostEntity } from './quotation-post.entity';
-import { QUOTATION_POST_CONFLICT, QUOTATION_POST_NOT_FOUND, QUOTATION_POST_OPERATION_PERMISSION } from './quotation-post.constant';
+import { CreateQuotationPostDto } from '../dto/create-quotation-post.dto';
+import { POST_CONFLICT, POST_NOT_FOUND, POST_OPERATION_PERMISSION } from '../../post.constant';
 import { UpdateQuotationPostDto } from '../dto/update-quotation-post.dto';
 
 @Injectable()
 export class QuotationPostService {
   constructor(
-    private readonly quotationPostRepository: QuotationPostRepository
+    private readonly quotationPostRepository: QuotationPostRepository,
+    private readonly blogCommentRepository: BlogCommentRepository,
+    private readonly blogCommentFactory: BlogCommentFactory,
   ) { }
 
+  public async getAllPosts(query?: QuotationPostQuery): Promise<IPaginationResult<QuotationPostEntity>> {
+    return this.quotationPostRepository.find(query);
+  }
+
   public async createPost(dto: CreateQuotationPostDto, userId: string): Promise<QuotationPostEntity> {
-    const { tags, text, quotationAuthor } = dto;
-
-    const blogPost = { tags, text, quotationAuthor, userId };
-
-    const postEntity = new QuotationPostEntity(blogPost);
-    await this.quotationPostRepository.save(postEntity);
-
-    return postEntity;
+    const postEntity = new QuotationPostEntity(dto, userId);
+    return await this.quotationPostRepository.save(postEntity);
   }
 
   public async findPostById(id: string): Promise<QuotationPostEntity> {
     const post = await this.quotationPostRepository.findById(id);
 
     if (!post) {
-      throw new NotFoundException(QUOTATION_POST_NOT_FOUND);
+      throw new NotFoundException(POST_NOT_FOUND);
     }
 
     return post;
   }
 
-  public async updatePost(userId: string, offerId: string, dto: UpdateQuotationPostDto) {
-    const { tags, text, quotationAuthor, updatedAt } = dto;
-    const existPost = await this.findPostById(offerId);
+  public async updatePost(userId: string, offerId: string, dto: UpdateQuotationPostDto): Promise<QuotationPostEntity> {
+      const existPost = await this.findPostById(offerId);
+      let hasChanges = false;
 
-    if (existPost.userId !== userId) {
-      throw new UnauthorizedException(QUOTATION_POST_OPERATION_PERMISSION);
+      if (existPost.userId !== userId) {
+        throw new UnauthorizedException(POST_OPERATION_PERMISSION);
+      }
+
+      for (const [key, value] of Object.entries(dto)) {
+        if (value !== undefined && existPost[key] !== value) {
+          existPost[key] = value;
+          hasChanges = true;
+        }
+      }
+
+      if (!hasChanges) {
+        return existPost;
+      }
+      await this.quotationPostRepository.update(existPost);
+
+      return existPost;
     }
 
-    const updatedPost = { ...existPost, updatedAt: updatedAt ?? new Date(), tags, text, quotationAuthor };
-    const postEntity = await new QuotationPostEntity(updatedPost);
-    await this.quotationPostRepository.update(postEntity);
-
-    return postEntity;
-  }
-
-  public async deletePost(userId: string, offerId: string) {
+  public async deletePost(userId: string, offerId: string): Promise<void> {
     const deletedPost = await this.quotationPostRepository.findById(offerId);
     if (deletedPost.userId !== userId) {
-      throw new UnauthorizedException(QUOTATION_POST_OPERATION_PERMISSION);
+      throw new UnauthorizedException(POST_OPERATION_PERMISSION);
     }
 
-    await this.quotationPostRepository.deleteById(offerId);
-    return deletedPost;
+    try {
+      await this.quotationPostRepository.deleteById(offerId);
+    } catch {
+      throw new NotFoundException(`Post with ID ${offerId} not found`);
+    }
   }
 
-  public async repostPost(userId: string, offerId: string) {
-    const post = await this.findPostById(offerId);
-    const { id, createdAt, tags, text, quotationAuthor } = post;
+  public async repostPost(userId: string, offerId: string): Promise<QuotationPostEntity> {
+    const existPost = await this.findPostById(offerId);
 
-    if (post?.isRepost) {
-      throw new ConflictException(QUOTATION_POST_CONFLICT);
+    if (existPost?.isRepost) {
+      throw new ConflictException(POST_CONFLICT);
     }
 
-    const blogPost = {
-      originalId: id,
-      id: '',
-      createdAt,
-      updatedAt: new Date(),
-      tags, text, quotationAuthor,
-      originalUserId: post.userId,
-      userId,
-      isRepost: true,
-    };
+    existPost.originalId = existPost.id;
+    existPost.updatedAt = new Date();
+    existPost.originalUserId = existPost.userId;
+    existPost.userId = userId;
+    existPost.isRepost = true;
+    // const blogPost = {
+    //   originalId: id,
+    //   id: '',
+    //   createdAt,
+    //   updatedAt: new Date(),
+    //   tags, url, description,
+    //   originalUserId: existPost.userId,
+    //   userId,
+    //   isRepost: true,
+    // };
 
-    const postEntity = await new QuotationPostEntity(blogPost);
-    await this.quotationPostRepository.save(postEntity);
+    // const postEntity = await new QuotationPostEntity(blogPost);
+    await this.quotationPostRepository.save(existPost);
 
-    return postEntity;
+    return existPost;
+  }
+
+  public async addComment(postId: string, dto: CreateCommentDto): Promise<BlogCommentEntity> {
+    const existsPost = await this.findPostById(postId);
+    const newComment = this.blogCommentFactory.createFromDto(dto, existsPost.id);
+    await this.blogCommentRepository.save(newComment);
+
+    return newComment;
   }
 }
