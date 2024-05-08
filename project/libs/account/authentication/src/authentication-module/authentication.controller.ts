@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { IRequestWithUser } from './request-with-user.interface';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
+import { IRequestWithTokenPayload } from './request-with-token-payload.interface';
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -81,5 +82,11 @@ export class AuthenticationController {
   })
   public async refreshToken(@Req() { user }: IRequestWithUser) {
     return this.authService.createUserToken(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('check')
+  public async checkToken(@Req() { user: payload }: IRequestWithTokenPayload) {
+    return payload;
   }
 }
