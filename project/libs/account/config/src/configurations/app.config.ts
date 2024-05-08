@@ -28,6 +28,7 @@ function getConfig(): IApplicationConfig {
     environment: process.env.NODE_ENV as TEnvironment,
     port: parseInt(process.env.PORT || `${DEFAULT_PORT}`, 10),
   };
+  console.log(3);
   console.log(config);
 
   validateConfig(config);

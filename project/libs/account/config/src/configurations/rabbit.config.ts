@@ -3,7 +3,7 @@ import * as Joi from 'joi';
 
 const DEFAULT_RABBIT_PORT = 5672;
 
-export interface RabbitConfig {
+export interface IRabbitConfig {
   host: string;
   password: string;
   user: string;
@@ -21,15 +21,19 @@ const validationSchema = Joi.object({
   exchange: Joi.string().required(),
 });
 
-function validateConfig(config: RabbitConfig): void {
+function validateConfig(config: IRabbitConfig): void {
+  console.log(2);
   const { error } = validationSchema.validate(config, { abortEarly: true });
   if (error) {
+    console.log(5);
     throw new Error(`[Rabbit Config Validation Error]: ${error.message}`);
   }
+  console.log(6);
 }
 
-function getConfig(): RabbitConfig {
-  const config: RabbitConfig = {
+function getConfig(): IRabbitConfig {
+  console.log(1);
+  const config: IRabbitConfig = {
     host: process.env.RABBIT_HOST,
     password: process.env.RABBIT_PASSWORD,
     port: parseInt(process.env.RABBIT_PORT ?? DEFAULT_RABBIT_PORT.toString(), 10),
@@ -37,6 +41,8 @@ function getConfig(): RabbitConfig {
     queue: process.env.RABBIT_QUEUE,
     exchange: process.env.RABBIT_EXCHANGE,
   };
+  console.log(4);
+  console.log(config);
 
   validateConfig(config);
   return config;

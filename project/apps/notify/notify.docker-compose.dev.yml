@@ -7,6 +7,8 @@ services:
     ports:
       - "8025:8025"
       - "1085:8080"
+      # - ${SMTP_SERVER_PORT}:8025
+      # - ${SMTP_SERVER_PORT_UI}:8080
 
   readme.notify.rabbitmq:
       image: rabbitmq:3.11-management
@@ -15,10 +17,14 @@ services:
       ports:
         - '1088:15672'
         - '5672:5672'
+        # - ${RABBITMQ_PORT}:5672
+        # - ${RABBITMQ_PORT_UI}:15672
 
       environment:
-        RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+        RABBITMQ_DEFAULT_USER: admin
+        RABBITMQ_DEFAULT_PASS: test
+        # RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+        # RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
 
       healthcheck:
         test: rabbitmq-diagnostics -q ping
@@ -53,7 +59,8 @@ services:
     container_name: readme.notify.mongodb.ui
 
     ports:
-      - ${MONGO_LOCAL_PORT}:${MONGO_REMOTE_PORT}
+      - 8086:8081
+      # - ${MONGO_LOCAL_PORT}:${MONGO_REMOTE_PORT}
 
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
