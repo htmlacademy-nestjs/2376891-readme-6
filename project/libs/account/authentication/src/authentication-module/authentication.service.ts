@@ -11,7 +11,9 @@ import { createJWTPayload } from '@project/helpers';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RefreshTokenService } from '../refresh-token-module/refresh-token.service';
-import { AUTH_USER_EXISTS, AUTH_USER_NOT_FOUND, AUTH_USER_PASSWORD_WRONG } from './authentication.constant';
+import { AUTHENTICATION_RESPONSE_MESSAGES, AUTH_USER_EXISTS, AUTH_USER_NOT_FOUND, AUTH_USER_PASSWORD_WRONG } from './authentication.constant';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
 
 @Injectable()
 export class AuthenticationService {
@@ -72,6 +74,63 @@ export class AuthenticationService {
     return user;
   }
 
+  public async getUserByEmail(email: string) {
+    const existUser = await this.blogUserRepository.findByEmail(email);
+
+    if (! existUser) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+
+    return existUser;
+  }
+
+  public async updateUser(id: string, dto: UpdateUserDto) {
+    const existUser = await this.blogUserRepository.findById(id);
+    let hasChanges = false;
+
+    if (! existUser) {
+      throw new NotFoundException(AUTHENTICATION_RESPONSE_MESSAGES.USER_NOT_FOUND);
+    }
+
+    for (const [key, value] of Object.entries(dto)) {
+      if (value !== undefined && existUser[key] !== value) {
+        existUser[key] = value;
+        hasChanges = true;
+      }
+    }
+
+    if (!hasChanges) {
+      return existUser;
+    }
+    // await this.linkPostRepository.update(existPost);
+
+    // return existPost;
+
+    // const updatedUser = new UserEntity({
+    //   ...existUser.toPOJO(),
+    //   ...dto,
+    // });
+    await this.blogUserRepository.update(existUser);
+    return existUser;
+  }
+
+  public async updateUserPassword(id: string, dto: UpdateUserPasswordDto) {
+    const existUser = await this.blogUserRepository.findById(id);
+
+    if (! existUser) {
+      throw new NotFoundException(AUTHENTICATION_RESPONSE_MESSAGES.USER_NOT_FOUND);
+    }
+
+    if (!existUser.comparePassword(dto.password)) {
+      throw new NotFoundException(AUTHENTICATION_RESPONSE_MESSAGES.LOGGED_ERROR);
+    }
+
+    const newUser = await existUser.setPassword(dto.newPassword);
+
+    await this.blogUserRepository.update(newUser);
+    return newUser;
+  }
+
   public async createUserToken(user: IUser): Promise<IToken> {
     const accessTokenPayload = createJWTPayload(user);
     const refreshTokenPayload = { ...accessTokenPayload, tokenId: randomUUID() };
@@ -89,15 +148,5 @@ export class AuthenticationService {
       this.logger.error('[Token generation error]: ' + error.message);
       throw new HttpException('Ошибка при создании токена.', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
-
-  public async getUserByEmail(email: string) {
-    const existUser = await this.blogUserRepository.findByEmail(email);
-
-    if (! existUser) {
-      throw new NotFoundException(`User with email ${email} not found`);
-    }
-
-    return existUser;
   }
 }

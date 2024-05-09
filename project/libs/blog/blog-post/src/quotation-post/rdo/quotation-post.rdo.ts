@@ -1,7 +1,7 @@
 import { Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { TComment } from '@project/core';
+import { PostType, TComment, TLike } from '@project/core';
 
 
 export class QuotationPostRdo {
@@ -39,6 +39,15 @@ export class QuotationPostRdo {
   })
   @Expose()
   public tags: string[];
+
+  @ApiProperty({
+    enum: PostType,
+    enumName: 'PostType',
+    example: 'video',
+    description: 'Post type',
+  })
+  @Expose()
+  public type: PostType;
 
   @ApiProperty({
     description: 'Photo text',
@@ -80,5 +89,12 @@ export class QuotationPostRdo {
     example: ['134ce8babd-cc30-4805-9b12-d9420398e7c5', '134ce8babd-cc30-4805-9b12-d9420398e7c5'],
   })
   @Expose()
-  public comments: TComment[]
+  public comments: TComment[];
+
+  @ApiProperty({
+    description: 'Post likes',
+    example: ['134ce8babd-cc30-4805-9b12-d9420398e7c5', '134ce8babd-cc30-4805-9b12-d9420398e7c5'],
+  })
+  @Expose()
+  public likes: TLike[];
 }

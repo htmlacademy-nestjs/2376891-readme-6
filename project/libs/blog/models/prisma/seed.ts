@@ -1,10 +1,19 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PostType } from '@prisma/client';
+// import { PostType } from '../../../shared/core/src/index';
 
 const FIRST_POST_UUID = '6d308040-06a2-4162-bea6-2398e9976540';
 const SECOND_POST_UUID = '6g308045-98a2-4162-iea6-2338e9906540';
 
 const FIRST_USER_ID = '658170cbb974e9f5b946pcf4';
 const SECOND_USER_ID = '6841762309c030b503e37622';
+
+// enum PostType {
+//   LINK = 'link',
+//   PHOTO = 'photo',
+//   QUOTATION = 'quotation',
+//   TEXT = 'text',
+//   VIDEO = 'video',
+// }
 
 function getPosts() {
   return [
@@ -15,6 +24,10 @@ function getPosts() {
       userId: FIRST_USER_ID,
       originalUserId: FIRST_USER_ID,
       isRepost: false,
+      type: PostType.link,
+      // type: 'link',
+      url: 'user@user.ru',
+      text: 'This is an amazing place!',
     },
     {
       id: SECOND_POST_UUID,
@@ -23,6 +36,10 @@ function getPosts() {
       userId: SECOND_USER_ID,
       originalUserId: SECOND_USER_ID,
       isRepost: false,
+      type: PostType.link,
+      // type: 'link',
+      url: 'user@user2.ru',
+      text: 'This is a perfect place!',
       comments: [
         {
           text: 'Это действительно отличная книга!',
@@ -52,18 +69,44 @@ async function seedDb(prismaClient: PrismaClient) {
         id: post.id,
         originalId: post.originalId,
         tags: post.tags,
+        type: post.type,
+        url: post.url,
+        text: post.text,
         userId: post.userId,
         originalUserId: post.originalUserId,
         isRepost: post.isRepost,
         comments: post.comments ? {
           create: post.comments
         } : undefined,
-        // likes: post.likes ? {
-        //   create: post.likes
-        // } : undefined,
+        likes: post.likes ? {
+          create: post.likes
+        } : undefined,
       }
     })
   }
+
+  // for (const post of mockPosts) {
+  //   await prismaClient.post.create({
+  //     data: {
+  //       id: post.id,
+  //       originalId: post.originalId,
+  //       tags: post.tags,
+  //       type: post.type,
+  //       url: post.url,
+  //       text: post.text,
+  //       userId: post.userId,
+  //       originalUserId: post.originalUserId,
+  //       isRepost: post.isRepost,
+  //       comments: post.comments ? {
+  //         create: post.comments
+  //       } : undefined,
+  //       likes: post.likes ? {
+  //         create: post.likes
+  //       } : undefined,
+  //     }
+  //   })
+  // }
+
   console.info('🤘️ Database was filled');
 }
 

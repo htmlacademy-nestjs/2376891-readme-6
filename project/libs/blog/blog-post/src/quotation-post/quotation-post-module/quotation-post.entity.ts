@@ -1,4 +1,4 @@
-import { Entity, IQuotationPost, IStorableEntity } from '@project/core';
+import { Entity, IQuotationPost, IStorableEntity, PostType } from '@project/core';
 import { BlogCommentEntity, BlogCommentFactory } from '@project/blog-comment';
 
 export class QuotationPostEntity extends Entity implements IStorableEntity<IQuotationPost> {
@@ -6,6 +6,7 @@ export class QuotationPostEntity extends Entity implements IStorableEntity<IQuot
   public createdAt?: Date;
   public updatedAt?: Date;
   public tags: string[];
+  public type: PostType;
   public userId: string;
   public originalUserId: string;
   public isRepost: boolean;
@@ -30,11 +31,12 @@ export class QuotationPostEntity extends Entity implements IStorableEntity<IQuot
     this.createdAt = post.createdAt ?? new Date();
     this.updatedAt = post.updatedAt ?? new Date();
     this.tags = post.tags ?? [];
+    this.type = PostType.Quotation;
     this.userId = userId ?? post.userId;
     this.originalUserId = post.originalUserId ?? '';
     this.isRepost = post.isRepost ?? false;
     this.comments = [];
-    // this.likes = [];
+    this.likes = [];
 
     this.text = post.text;
     this.quotationAuthor = post.quotationAuthor;
@@ -53,11 +55,12 @@ export class QuotationPostEntity extends Entity implements IStorableEntity<IQuot
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       tags: this.tags,
+      type: this.type,
       userId: this.userId,
       originalUserId: this.originalUserId,
       isRepost: this.isRepost,
       comments: this.comments.map((commentEntity) => commentEntity.toPOJO()),
-      // likes: this.likes,
+      likes: this.likes,
 
       text: this.text,
       quotationAuthor: this.quotationAuthor,

@@ -27,20 +27,27 @@ export class LinkPostRepository extends BasePostgresRepository<LinkPostEntity, I
   }
 
   public async save(entity: LinkPostEntity): Promise<LinkPostEntity> {
-    const record = await this.client.post.create({
-      data: {
-        ...entity.toPOJO(),
-        comments: {
-          connect: [],
-        },
+    const post = entity.toPOJO();
+    const record = await this.client.post.upsert({
+      where: { id: post.id },
+      update: {},
+      create: {
+        ...post,
+        comments: post.comments ? {
+          create: post.comments
+        } : undefined,
+        likes: post.likes ? {
+          create: post.likes
+        } : undefined,
       },
       include: {
         comments: true,
+        likes: true,
       }
     });
 
     // entity.id = record.id;
-    return await this.createEntityFromDocument(record);
+    return await this.createEntityFromDocument(record as ILinkPost);
   }
 
   public async deleteById(id: string): Promise<void> {
@@ -58,7 +65,7 @@ export class LinkPostRepository extends BasePostgresRepository<LinkPostEntity, I
       },
       include: {
         comments: true,
-        // likes: true,
+        likes: true,
       }
     });
 
@@ -66,7 +73,7 @@ export class LinkPostRepository extends BasePostgresRepository<LinkPostEntity, I
       throw new NotFoundException(`Post with id ${id} not found.`);
     }
 
-    return this.createEntityFromDocument(document);
+    return this.createEntityFromDocument(document as ILinkPost);
   }
 
   public async update(entity: LinkPostEntity): Promise<void> {
@@ -78,7 +85,7 @@ export class LinkPostRepository extends BasePostgresRepository<LinkPostEntity, I
       },
       include: {
         comments: true,
-        // likes: true,
+        likes: true,
       }
     });
   }
@@ -97,14 +104,14 @@ export class LinkPostRepository extends BasePostgresRepository<LinkPostEntity, I
       this.client.post.findMany({ where, orderBy, skip, take,
         include: {
           comments: true,
-          // likes: true,
+          likes: true,
         },
       }),
       this.getPostCount(where),
     ]);
 
     return {
-      entities: records.map((record) => this.createEntityFromDocument(record)),
+      entities: records.map((record) => this.createEntityFromDocument(record as ILinkPost)),
       currentPage: query?.page,
       totalPages: this.calculatePostsPage(postCount, take),
       itemsPerPage: take,

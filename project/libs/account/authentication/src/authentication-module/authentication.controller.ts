@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MongoIdValidationPipe } from '@project/pipes';
@@ -7,8 +7,7 @@ import { NotifyService } from '@project/account-notify';
 
 import { AuthenticationService } from './authentication.service';
 import { CreateUserDto } from '../dto/create-user.dto';
-// import { LoginUserDto } from '../dto/login-user.dto';
-import { AuthenticationResponseMessage } from './authentication.constant';
+import { AUTHENTICATION_RESPONSE_MESSAGES } from './authentication.constant';
 import { LoggedUserRdo } from '../rdo/logged-user.rdo';
 import { UserRdo } from '../rdo/user.rdo';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -16,6 +15,8 @@ import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { IRequestWithUser } from './request-with-user.interface';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
 import { IRequestWithTokenPayload } from './request-with-token-payload.interface';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -27,11 +28,11 @@ export class AuthenticationController {
 
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: AuthenticationResponseMessage.UserCreated,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.USER_CREATED,
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
-    description: AuthenticationResponseMessage.UserExist,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.USER_EXIST,
   })
   @Post('register')
   public async create(@Body() dto: CreateUserDto) {
@@ -44,11 +45,11 @@ export class AuthenticationController {
   @ApiResponse({
     type: LoggedUserRdo,
     status: HttpStatus.OK,
-    description: AuthenticationResponseMessage.LoggedSuccess,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.LOGGED_SUCCESS,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
-    description: AuthenticationResponseMessage.LoggedError,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.LOGGED_ERROR,
   })
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -60,17 +61,62 @@ export class AuthenticationController {
   @ApiResponse({
     type: UserRdo,
     status: HttpStatus.OK,
-    description: AuthenticationResponseMessage.UserFound,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.USER_FOUND,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: AuthenticationResponseMessage.UserNotFound,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.USER_NOT_FOUND,
   })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   public async show(@Param('id', MongoIdValidationPipe) id: string) {
     const existUser = await this.authService.getUser(id);
-    return existUser.toPOJO();
+    return fillDto(UserRdo, existUser.toPOJO());
+    // return existUser.toPOJO();
+  }
+
+  @Patch('update-avatar')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.USER_AVATAR,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.USER_NOT_FOUND,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.UNAUTHORIZED,
+  })
+  public updateAvatar(
+    // @Body() dto: UpdateUserAvatarDto,
+    @Body() dto: UpdateUserDto,
+    @Req() { user }: IRequestWithUser
+  ) {
+    // return this.authService.updateUser(user.id, { avatarId: dto.avatarId });
+    return this.authService.updateUser(user.id, dto);
+  }
+
+  @Patch('update-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.USER_PASSWORD,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.USER_NOT_FOUND,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: AUTHENTICATION_RESPONSE_MESSAGES.UNAUTHORIZED,
+  })
+  public updatePassword(
+    @Body() dto: UpdateUserPasswordDto,
+    @Req() { user }: IRequestWithUser
+  ) {
+    return this.authService.updateUserPassword(user.id, dto);
   }
 
   @UseGuards(JwtRefreshGuard)

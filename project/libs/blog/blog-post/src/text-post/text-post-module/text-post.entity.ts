@@ -1,4 +1,4 @@
-import { Entity, ITextPost, IStorableEntity } from '@project/core';
+import { Entity, ITextPost, IStorableEntity, PostType } from '@project/core';
 import { BlogCommentEntity, BlogCommentFactory } from '@project/blog-comment';
 
 export class TextPostEntity extends Entity implements IStorableEntity<ITextPost> {
@@ -6,6 +6,7 @@ export class TextPostEntity extends Entity implements IStorableEntity<ITextPost>
   public createdAt?: Date;
   public updatedAt?: Date;
   public tags: string[];
+  public type: PostType;
   public userId: string;
   public originalUserId: string;
   public isRepost: boolean;
@@ -31,11 +32,12 @@ export class TextPostEntity extends Entity implements IStorableEntity<ITextPost>
     this.createdAt = post.createdAt ?? new Date();
     this.updatedAt = post.updatedAt ?? new Date();
     this.tags = post.tags ?? [];
+    this.type = PostType.Text;
     this.userId = userId ?? post.userId;
     this.originalUserId = post.originalUserId ?? '';
     this.isRepost = post.isRepost ?? false;
     this.comments = [];
-    // this.likes = [];
+    this.likes = [];
 
     this.name = post.name;
     this.title = post.title;
@@ -55,11 +57,12 @@ export class TextPostEntity extends Entity implements IStorableEntity<ITextPost>
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       tags: this.tags,
+      type: this.type,
       userId: this.userId,
       originalUserId: this.originalUserId,
       isRepost: this.isRepost,
       comments: this.comments.map((commentEntity) => commentEntity.toPOJO()),
-      // likes: this.likes,
+      likes: this.likes,
 
       name: this.name,
       title: this.title,

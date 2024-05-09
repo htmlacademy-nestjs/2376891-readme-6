@@ -21,10 +21,10 @@ services:
         # - ${RABBITMQ_PORT_UI}:15672
 
       environment:
-        RABBITMQ_DEFAULT_USER: admin
-        RABBITMQ_DEFAULT_PASS: test
-        # RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-        # RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+        # RABBITMQ_DEFAULT_USER: admin
+        # RABBITMQ_DEFAULT_PASS: 12345
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
 
       healthcheck:
         test: rabbitmq-diagnostics -q ping

@@ -1,20 +1,16 @@
 import { Module } from '@nestjs/common';
 
-import {
-  // LinkPostModule, PhotoPostModule, QuotationPostModule, TextPostModule, VideoPostModule,
-  BlogPostModule,
- } from '@project/post';
+import {LinkPostModule, PhotoPostModule, QuotationPostModule, TextPostModule, VideoPostModule} from '@project/blog-post';
 import { BlogCommentModule } from '@project/blog-comment';
 import { BlogConfigModule } from '@project/blog-config';
 
 @Module({
   imports: [
-    // LinkPostModule,
-    // PhotoPostModule,
-    // QuotationPostModule,
-    // TextPostModule,
-    // VideoPostModule,
-    BlogPostModule,
+    LinkPostModule,
+    PhotoPostModule,
+    QuotationPostModule,
+    TextPostModule,
+    VideoPostModule,
     BlogConfigModule,
     BlogCommentModule,
   ],
