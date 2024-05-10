@@ -22,4 +22,5 @@ export function getRabbitMQOptions(optionSpace) {
     }),
     inject: [ConfigService]
   }
+
 }

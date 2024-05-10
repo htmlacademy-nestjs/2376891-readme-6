@@ -5,7 +5,7 @@ import { TBasePost } from './base-post.type';
 //   quotationAuthor: string;
 // }
 
-export interface TQuotationPost extends TBasePost {
-  text?: string;
-  quotationAuthor?: string;
+export interface IQuotationPost extends TBasePost {
+  text: string;
+  quotationAuthor: string;
 }

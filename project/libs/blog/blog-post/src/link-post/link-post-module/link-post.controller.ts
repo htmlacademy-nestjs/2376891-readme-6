@@ -19,7 +19,7 @@ export class LinkPostController {
     private readonly linkPostService: LinkPostService
   ) { }
 
-  @Post('/')
+  @Post('link')
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: LinkPostRdo,
@@ -28,7 +28,7 @@ export class LinkPostController {
   @ApiResponse({
     status: HttpStatus.CONFLICT,
   })
-  public async create(@Body(new ValidationPipe()) dto: CreateLinkPostDto, @Param() userId: string): Promise<LinkPostRdo> {
+  public async create(@Body(new ValidationPipe()) dto: CreateLinkPostDto, @Body() userId: string): Promise<LinkPostRdo> {
     const newPost = await this.linkPostService.createPost(dto, userId);
     return fillDto(LinkPostRdo, newPost.toPOJO());
   }
@@ -43,7 +43,7 @@ export class LinkPostController {
     status: HttpStatus.NOT_FOUND,
     description: PostResponseMessage.PostNotFound,
   })
-  public async show(@Param('id', ParseUUIDPipe) id: string): Promise<LinkPostRdo> {
+  public async show(@Param('id') id: string): Promise<LinkPostRdo> {
     const foundPost = await this.linkPostService.findPostById(id);
     return fillDto(LinkPostRdo, foundPost.toPOJO());
   }
@@ -76,9 +76,9 @@ export class LinkPostController {
     status: HttpStatus.NOT_FOUND,
     description: PostResponseMessage.PostNotFound,
   })
-  @Patch(':userId/:offerId')
+  @Patch('link/:postId')
   public async update(
-    @Param('userId') userId: string,
+    @Body('userId') userId: string,
     @Param('postId', ParseUUIDPipe) postId: string,
     @Body(new ValidationPipe()) dto: UpdateLinkPostDto): Promise<LinkPostRdo> {
     const updatedPost = await this.linkPostService.updatePost(userId, postId, dto);
@@ -94,9 +94,9 @@ export class LinkPostController {
     status: HttpStatus.NOT_FOUND,
     description: PostResponseMessage.PostNotFound,
   })
-  @Delete(':userId/:offerId')
+  @Delete('link/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async destroy(@Param('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<void> {
+  public async destroy(@Body('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<void> {
     await this.linkPostService.deletePost(userId, postId);
     // return fillDto(LinkPostRdo, deletedPost.toPOJO());
   }
@@ -110,8 +110,8 @@ export class LinkPostController {
     status: HttpStatus.NOT_FOUND,
     description: PostResponseMessage.PostNotFound,
   })
-  @Post(':userId/:offerId')
-  public async repost(@Param('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<LinkPostRdo> {
+  @Post('link/:postId')
+  public async repost(@Body('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<LinkPostRdo> {
     const newPost = await this.linkPostService.repostPost(userId, postId);
     return fillDto(LinkPostRdo, newPost.toPOJO());
   }
@@ -125,7 +125,7 @@ export class LinkPostController {
     status: HttpStatus.NOT_FOUND,
     // description: PostResponseMessage.PostNotFound,
   })
-  @Post('/:postId/comments')
+  @Post('link/:postId/comments')
   public async createComment(@Param('postId', ParseUUIDPipe) postId: string, @Body(new ValidationPipe()) dto: CreateCommentDto) {
     const newComment = await this.linkPostService.addComment(postId, dto);
     return fillDto(CommentRdo, newComment.toPOJO());

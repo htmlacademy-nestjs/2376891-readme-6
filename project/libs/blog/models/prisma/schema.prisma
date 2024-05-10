@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../../../../node_modules/.prisma/client"
+  output   = "../../../../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -15,41 +15,64 @@ datasource db {
 }
 
 model Post {
-  id              String   @id @default(uuid())
-  originalId      String @map("original_id")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  tags            String[]
-  userId          String @map("user_id")
-  originalUserId  String @map("original_user_id")
-  isRepost        Boolean @map("is_repost")
-  comments Comment[]
-  // likes Like[]
+  id             String    @id @default(uuid())
+  originalId     String?   @map("original_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime? @updatedAt @map("updated_at")
+  // type           String
+  type            PostType
+  // state           PostState @default(draft)
+  tags           String[]
+  userId         String    @map("user_id")
+  originalUserId String?   @map("original_user_id")
+  isRepost       Boolean?  @map("is_repost")
+  comments       Comment[]
+  likes          Like[]
+
+  url             String?
+  text            String?
+  photo           String?
+  quotationAuthor String? @map("quotation_author")
+  name            String?
+  title           String?
 
   @@index([id])
   @@map("posts")
 }
 
 model Comment {
-  id          String    @id @default(uuid())
-  text        String
-  userId      String    @map("user_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  postId      String    @map("post_id")
+  id        String   @id @default(uuid())
+  text      String
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  postId    String   @map("post_id")
 
   @@index([postId])
   @@map("comments")
 }
 
-// model Like {
-//   id        String   @id @default(uuid())
-//   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-//   postId    String   @map("post_id")
-//   userId    String   @map("user_id")
-//   createdAt DateTime @default(now()) @map("created_at")
-//   updatedAt DateTime @updatedAt @map("updated_at")
+model Like {
+  id        String   @id @default(uuid())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String   @map("post_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-//   @@map("likes")
+  @@map("likes")
+}
+
+enum PostType {
+  link
+  photo
+  quotation
+  text
+  video
+}
+
+// enum PostState {
+//   draft
+//   published
 // }

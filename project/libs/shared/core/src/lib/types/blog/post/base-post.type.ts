@@ -1,6 +1,6 @@
 import { TComment } from '../comment/comment.type';
 import { PostType } from './post-type.type';
-// import { TLike } from '../like/like.type';
+import { TLike } from '../like/like.type';
 // import { PostType } from '@prisma/client';
 
 // export type TBasePost = {
@@ -21,12 +21,12 @@ export interface TBasePost {
   originalId?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  type?: PostType;
+  type: PostType;
   tags?: string[];
-  userId?: string;
+  userId: string;
   originalUserId?: string;
   isRepost?: boolean;
   comments?: TComment[];
-  // likes?: TLike[];
+  likes?: TLike[];
   // likes?: [];
 }

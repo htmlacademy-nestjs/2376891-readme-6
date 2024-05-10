@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
-import { IPaginationResult, ILinkPost } from '@project/core';
+import { IPaginationResult, IVideoPost } from '@project/core';
 import { BasePostgresRepository } from '@project/data-access';
 import { PrismaClientService } from '@project/blog-models';
 
@@ -10,7 +10,7 @@ import { VideoPostFactory } from './video-post.factory';
 import { VideoPostQuery } from './video-post.query';
 
 @Injectable()
-export class VideoPostRepository extends BasePostgresRepository<VideoPostEntity, ILinkPost> {
+export class VideoPostRepository extends BasePostgresRepository<VideoPostEntity, IVideoPost> {
   constructor(
     entityFactory: VideoPostFactory,
     readonly client: PrismaClientService,
@@ -27,20 +27,27 @@ export class VideoPostRepository extends BasePostgresRepository<VideoPostEntity,
   }
 
   public async save(entity: VideoPostEntity): Promise<VideoPostEntity> {
-    const record = await this.client.post.create({
-      data: {
-        ...entity.toPOJO(),
-        comments: {
-          connect: [],
-        },
+    const post = entity.toPOJO();
+    const record = await this.client.post.upsert({
+      where: { id: post.id },
+      update: {},
+      create: {
+        ...post,
+        comments: post.comments ? {
+          create: post.comments
+        } : undefined,
+        likes: post.likes ? {
+          create: post.likes
+        } : undefined,
       },
       include: {
         comments: true,
+        likes: true,
       }
     });
 
     // entity.id = record.id;
-    return await this.createEntityFromDocument(record);
+    return await this.createEntityFromDocument(record as IVideoPost);
   }
 
   public async deleteById(id: string): Promise<void> {
@@ -58,7 +65,7 @@ export class VideoPostRepository extends BasePostgresRepository<VideoPostEntity,
       },
       include: {
         comments: true,
-        // likes: true,
+        likes: true,
       }
     });
 
@@ -66,7 +73,7 @@ export class VideoPostRepository extends BasePostgresRepository<VideoPostEntity,
       throw new NotFoundException(`Post with id ${id} not found.`);
     }
 
-    return this.createEntityFromDocument(document);
+    return this.createEntityFromDocument(document as IVideoPost);
   }
 
   public async update(entity: VideoPostEntity): Promise<void> {
@@ -78,7 +85,7 @@ export class VideoPostRepository extends BasePostgresRepository<VideoPostEntity,
       },
       include: {
         comments: true,
-        // likes: true,
+        likes: true,
       }
     });
   }
@@ -97,14 +104,14 @@ export class VideoPostRepository extends BasePostgresRepository<VideoPostEntity,
       this.client.post.findMany({ where, orderBy, skip, take,
         include: {
           comments: true,
-          // likes: true,
+          likes: true,
         },
       }),
       this.getPostCount(where),
     ]);
 
     return {
-      entities: records.map((record) => this.createEntityFromDocument(record)),
+      entities: records.map((record) => this.createEntityFromDocument(record as IVideoPost)),
       currentPage: query?.page,
       totalPages: this.calculatePostsPage(postCount, take),
       itemsPerPage: take,
