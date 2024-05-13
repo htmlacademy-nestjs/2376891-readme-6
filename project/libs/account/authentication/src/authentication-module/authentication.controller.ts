@@ -1,7 +1,8 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards} from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { MongoIdValidationPipe } from '@project/pipes';
+import {
+  MongoIdValidationPipe } from '@project/pipes';
 import { fillDto } from '@project/helpers';
 import { NotifyService } from '@project/account-notify';
 
@@ -15,8 +16,9 @@ import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { IRequestWithUser } from './request-with-user.interface';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
 import { IRequestWithTokenPayload } from './request-with-token-payload.interface';
-import { UpdateUserDto } from '../dto/update-user.dto';
+import { CheckNoAuthGuard } from '../guards/check-no-auth.guard';
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
+import { UpdateUserAvatarDto } from '../dto/update-user-avatar.dto';
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -34,9 +36,11 @@ export class AuthenticationController {
     status: HttpStatus.CONFLICT,
     description: AUTHENTICATION_RESPONSE_MESSAGES.USER_EXIST,
   })
+  @UseGuards(CheckNoAuthGuard)
   @Post('register')
   public async create(@Body() dto: CreateUserDto) {
-    const newUser = await this.authService.register(dto);
+    await this.authService.register(dto);
+    const newUser = await this.authService.getUserByEmail(dto.email);
     const { email, name } = newUser;
     await this.notifyService.registerSubscriber({ email, name });
     return newUser.toPOJO();
@@ -58,6 +62,7 @@ export class AuthenticationController {
     return fillDto(LoggedUserRdo, { ...user.toPOJO(), ...userToken });
   }
 
+  @Get(':id')
   @ApiResponse({
     type: UserRdo,
     status: HttpStatus.OK,
@@ -68,11 +73,10 @@ export class AuthenticationController {
     description: AUTHENTICATION_RESPONSE_MESSAGES.USER_NOT_FOUND,
   })
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  public async show(@Param('id', MongoIdValidationPipe) id: string) {
+  public async show(@Param('id', MongoIdValidationPipe) id: string,
+) {
     const existUser = await this.authService.getUser(id);
     return fillDto(UserRdo, existUser.toPOJO());
-    // return existUser.toPOJO();
   }
 
   @Patch('update-avatar')
@@ -90,12 +94,10 @@ export class AuthenticationController {
     description: AUTHENTICATION_RESPONSE_MESSAGES.UNAUTHORIZED,
   })
   public updateAvatar(
-    // @Body() dto: UpdateUserAvatarDto,
-    @Body() dto: UpdateUserDto,
+    @Body() dto: UpdateUserAvatarDto,
     @Req() { user }: IRequestWithUser
   ) {
-    // return this.authService.updateUser(user.id, { avatarId: dto.avatarId });
-    return this.authService.updateUser(user.id, dto);
+    return this.authService.updateUser(dto, user.id);
   }
 
   @Patch('update-password')
@@ -114,9 +116,9 @@ export class AuthenticationController {
   })
   public updatePassword(
     @Body() dto: UpdateUserPasswordDto,
-    @Req() { user }: IRequestWithUser
+    @Req() {user}: IRequestWithUser
   ) {
-    return this.authService.updateUserPassword(user.id, dto);
+    return this.authService.updateUserPassword(dto, user.email);
   }
 
   @UseGuards(JwtRefreshGuard)

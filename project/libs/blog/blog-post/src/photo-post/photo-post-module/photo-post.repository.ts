@@ -46,7 +46,6 @@ export class PhotoPostRepository extends BasePostgresRepository<PhotoPostEntity,
       }
     });
 
-    // entity.id = record.id;
     return await this.createEntityFromDocument(record as IPhotoPost);
   }
 

@@ -46,7 +46,6 @@ export class VideoPostRepository extends BasePostgresRepository<VideoPostEntity,
       }
     });
 
-    // entity.id = record.id;
     return await this.createEntityFromDocument(record as IVideoPost);
   }
 

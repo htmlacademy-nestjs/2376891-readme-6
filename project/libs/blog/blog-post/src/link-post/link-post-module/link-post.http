@@ -1,38 +1,61 @@
 # Get all posts
-GET http://localhost:3000/api/posts HTTP/1.1
+GET http://localhost:3334/api/posts HTTP/1.1
 
 ###
 
 # Get posts with filter
 
-GET http://localhost:3000/api/posts?limit=2&sortDirection=desc&categories[]=39614113-7ad5-45b6-8093-06455437e1e2&page=1 HTTP/1.1
+GET http://localhost:3334/api/posts?limit=2&sortDirection=desc&categories[]=39614113-7ad5-45b6-8093-06455437e1e2&page=1 HTTP/1.1
 
 ###
 
 # Create a new post
-POST http://localhost:3000/api/posts/link/ghfj456cbdj HTTP/1.1
+POST http://localhost:3334/api/posts/link HTTP/1.1
 Content-Type: application/json
 
 {
-  "url": "https://dfgdfvdfsfsd.html",
-  "text": "sssssssssssssssssss",
-  "tags": [
-    "#aaa",
-    "#bbb",
-    "#ccc"
-  ],
-  "userId": "658ede7600f80970fcf9e111",
+  "type": "link",
+  "url": "https://www.youtube.com/kntFsGbI0FY?si=UOR60rLOWCzjeYLt",
+  "text": "Проверка!!",
+  "tags": ["#aaa","#bbb","#ccc"],
+  "userId": "658ede7600f80970fcf9e111"
 }
 
 ###
 
+# Create a new post
+POST http://localhost:3334/api/posts/link HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NjQxZWU2MzcyMjUzZjIzYjkwZTk2YjciLCJlbWFpbCI6InVzZXJAbm90Zm91bmQubG9jYWwiLCJuYW1lIjoiS2VrcyBTbWl0aCIsImlhdCI6MTcxNTY0NjU4OCwiZXhwIjoxNzE1NzMyOTg4fQ.Nq3l1oq1Ykc25lie-sQh-EWt5iPX33ikWgsNlU6iC94
+Content-Type: application/json
+
+{
+  "type": "link",
+  "url": "https://www.youtube.com/kntFsGbI0FY?si=UOR60rLOWCzjeYLt",
+  "text": "Проверка!!",
+  "tags": ["#aaa","#bbb","#ccc"]
+}
+###
+
+###
+
 # Get post by ID
-GET http://localhost:3000/api/posts/link/6d308040-06a2-4162-bea6-2398e9976540	 HTTP/1.1
+GET http://localhost:3334/api/posts/link/6d308040-06a2-4162-bea6-2398e9976540	 HTTP/1.1
 
 ###
 
 # Update the post by id
-PATCH http://localhost:3000/api/posts/link/ghfj456cbdj/9798bfcb-1b0b-4183-ae73-a24157f2ecfe HTTP/1.1
+PATCH http://localhost:3334/api/posts/link/6d308040-06a2-4162-bea6-2398e9976540 HTTP/1.1
+Content-Type: application/json
+
+{
+  "text": "AAA"
+}
+
+###
+
+# Update the post by id
+PATCH http://localhost:3334/api/posts/link/6d308040-06a2-4162-bea6-2398e9976540 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NjQxZWU2MzcyMjUzZjIzYjkwZTk2YjciLCJlbWFpbCI6InVzZXJAbm90Zm91bmQubG9jYWwiLCJuYW1lIjoiS2VrcyBTbWl0aCIsImlhdCI6MTcxNTY5OTgzMiwiZXhwIjoxNzE1Nzg2MjMyfQ.eZluoWEG3FsTSSVWzccRj06vwGaEEya6koYMfEfpO2k
 Content-Type: application/json
 
 {
@@ -42,17 +65,17 @@ Content-Type: application/json
 ###
 
 # Delete the post by ID
-DELETE http://localhost:3000/api/posts/link/ghfj456cbdj/9798bfcb-1b0b-4183-ae73-a24157f2ecfe HTTP/1.1
+DELETE http://localhost:3334/api/posts/link/ghfj456cbdj/9798bfcb-1b0b-4183-ae73-a24157f2ecfe HTTP/1.1
 
 ###
 
 # Repost the post
-POST http://localhost:3000/api/posts/link/ghfj456cbdj/2 HTTP/1.1
+POST http://localhost:3334/api/posts/link/ghfj456cbdj/2 HTTP/1.1
 
 ###
 
 # Create a new comment for post
-POST http://localhost:3000/api/posts/link/ab04593b-da99-4fe3-8b4b-e06d82e2efdd/comments HTTP/1.1
+POST http://localhost:3334/api/posts/link/ab04593b-da99-4fe3-8b4b-e06d82e2efdd/comments HTTP/1.1
 Content-Type: application/json
 
 {

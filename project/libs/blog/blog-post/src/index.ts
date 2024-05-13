@@ -42,4 +42,3 @@ export { UpdateVideoPostDto } from './video-post/dto/update-video-post.dto';
 export { VideoPostRdo } from './video-post/rdo/video-post.rdo';
 export { VideoPostWithPaginationRdo} from './video-post/rdo/video-post-with-pagination.rdo';
 export { VideoPostQuery } from './video-post/video-post-module/video-post.query';
-// export { UpdatePostDto } from '.';

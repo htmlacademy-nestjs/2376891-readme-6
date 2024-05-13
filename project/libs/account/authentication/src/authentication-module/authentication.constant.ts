@@ -8,6 +8,7 @@ export const AUTHENTICATION_RESPONSE_MESSAGES = {
   USER_FOUND: 'User found',
   USER_NOT_FOUND: 'User not found',
   UNAUTHORIZED: 'User is unauthorised',
+  USER_AUTHORIZED: 'Registration is available only to anonymous clients.',
   USER_EXIST: 'User with the email already exists',
   USER_CREATED: 'The new user has been successfully created.',
   USER_AVATAR: 'The new user avatar has been successfully uploaded.',

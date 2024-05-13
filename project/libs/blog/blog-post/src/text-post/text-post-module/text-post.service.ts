@@ -84,18 +84,6 @@ export class TextPostService {
     existPost.originalUserId = existPost.userId;
     existPost.userId = userId;
     existPost.isRepost = true;
-    // const blogPost = {
-    //   originalId: id,
-    //   id: '',
-    //   createdAt,
-    //   updatedAt: new Date(),
-    //   tags, url, description,
-    //   originalUserId: existPost.userId,
-    //   userId,
-    //   isRepost: true,
-    // };
-
-    // const postEntity = await new TextPostEntity(blogPost);
     await this.textPostRepository.save(existPost);
 
     return existPost;

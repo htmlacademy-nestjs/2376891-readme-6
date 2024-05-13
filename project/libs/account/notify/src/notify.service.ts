@@ -16,7 +16,6 @@ export class NotifyService {
   ) {}
 
   public async registerSubscriber(dto: CreateSubscriberDto) {
-    console.log(8);
     return this.rabbitClient.publish<CreateSubscriberDto>(
       this.rabbiOptions.exchange,
       RabbitRouting.AddSubscriber,

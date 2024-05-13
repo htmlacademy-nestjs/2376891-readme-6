@@ -46,7 +46,6 @@ export class LinkPostRepository extends BasePostgresRepository<LinkPostEntity, I
       }
     });
 
-    // entity.id = record.id;
     return await this.createEntityFromDocument(record as ILinkPost);
   }
 
@@ -81,6 +80,8 @@ export class LinkPostRepository extends BasePostgresRepository<LinkPostEntity, I
     await this.client.post.update({
       where: { id: entity.id },
       data: {
+        url: pojoEntity.url,
+        text: pojoEntity.text,
         tags: pojoEntity.tags,
       },
       include: {

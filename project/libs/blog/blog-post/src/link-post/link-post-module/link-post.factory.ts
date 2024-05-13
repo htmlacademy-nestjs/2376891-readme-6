@@ -18,16 +18,6 @@ export class LinkPostFactory implements IEntityFactory<LinkPostEntity> {
         entity[key] = value;
       }
     }
-    
-    // entity.url = dto.url;
-    // entity.text = dto.text;
-    // entity.tags = dto.tags;
-    // // entity.photo = dto.photo;
-    // // entity.quotationAuthor = dto.quotationAuthor;
-    // // entity.name = dto.name;
-    // // entity.title = dto.title;
-    // // entity.userId = dto.userId;
-    // entity.comments = [];
 
     return entity;
   }

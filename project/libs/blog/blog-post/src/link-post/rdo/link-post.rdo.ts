@@ -23,7 +23,6 @@ export class LinkPostRdo {
     example: '1981-03-12',
   })
   @Expose()
-  // public updatedAt: string;
   public createdAt: Date;
 
   @ApiProperty({
@@ -31,7 +30,6 @@ export class LinkPostRdo {
     example: '1981-03-12',
   })
   @Expose()
-  // public updatedAt: string;
   public updatedAt: Date;
 
   @ApiProperty({

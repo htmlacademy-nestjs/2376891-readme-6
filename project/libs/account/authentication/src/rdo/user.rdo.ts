@@ -14,7 +14,7 @@ export class UserRdo {
     example: '/images/user.png'
   })
   @Expose()
-  public avatar: string;
+  public avatar?: string;
 
   @ApiProperty({
     description: 'User email',
@@ -29,4 +29,18 @@ export class UserRdo {
   })
   @Expose()
   public name: string;
+
+  @ApiProperty({
+    description: 'Date of user registration',
+    example: '2020-01-01',
+  })
+  @Expose()
+  createdAt!: string;
+
+  @ApiProperty({
+    description: 'Date of user date update',
+    example: '2020-01-01',
+  })
+  @Expose()
+  updatedAt!: string;
 }

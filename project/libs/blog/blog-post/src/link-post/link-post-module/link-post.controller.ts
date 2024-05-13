@@ -19,7 +19,7 @@ export class LinkPostController {
     private readonly linkPostService: LinkPostService
   ) { }
 
-  @Post('link')
+  @Post('/')
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: LinkPostRdo,
@@ -28,7 +28,10 @@ export class LinkPostController {
   @ApiResponse({
     status: HttpStatus.CONFLICT,
   })
-  public async create(@Body(new ValidationPipe()) dto: CreateLinkPostDto, @Body() userId: string): Promise<LinkPostRdo> {
+  public async create(
+    @Body(new ValidationPipe()) dto: CreateLinkPostDto,
+    @Param('userId') userId: string
+  ): Promise<LinkPostRdo> {
     const newPost = await this.linkPostService.createPost(dto, userId);
     return fillDto(LinkPostRdo, newPost.toPOJO());
   }
@@ -67,6 +70,7 @@ export class LinkPostController {
     return fillDto(LinkPostWithPaginationRdo, result);
   }
 
+  @Patch(':postId')
   @ApiResponse({
     type: LinkPostRdo,
     status: HttpStatus.OK,
@@ -76,12 +80,11 @@ export class LinkPostController {
     status: HttpStatus.NOT_FOUND,
     description: PostResponseMessage.PostNotFound,
   })
-  @Patch('link/:postId')
   public async update(
-    @Body('userId') userId: string,
+    @Query('userId') userId: string,
     @Param('postId', ParseUUIDPipe) postId: string,
     @Body(new ValidationPipe()) dto: UpdateLinkPostDto): Promise<LinkPostRdo> {
-    const updatedPost = await this.linkPostService.updatePost(userId, postId, dto);
+    const updatedPost = await this.linkPostService.updatePost(userId, postId, {...dto, userId});
     return fillDto(LinkPostRdo, updatedPost.toPOJO());
   }
 
@@ -94,11 +97,10 @@ export class LinkPostController {
     status: HttpStatus.NOT_FOUND,
     description: PostResponseMessage.PostNotFound,
   })
-  @Delete('link/:postId')
+  @Delete(':postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async destroy(@Body('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<void> {
     await this.linkPostService.deletePost(userId, postId);
-    // return fillDto(LinkPostRdo, deletedPost.toPOJO());
   }
 
   @ApiResponse({
@@ -110,7 +112,7 @@ export class LinkPostController {
     status: HttpStatus.NOT_FOUND,
     description: PostResponseMessage.PostNotFound,
   })
-  @Post('link/:postId')
+  @Post(':postId')
   public async repost(@Body('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<LinkPostRdo> {
     const newPost = await this.linkPostService.repostPost(userId, postId);
     return fillDto(LinkPostRdo, newPost.toPOJO());
@@ -119,13 +121,11 @@ export class LinkPostController {
   @ApiResponse({
     type: CommentRdo,
     status: HttpStatus.OK,
-    // description: PostResponseMessage.PostReposted,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    // description: PostResponseMessage.PostNotFound,
   })
-  @Post('link/:postId/comments')
+  @Post(':postId/comments')
   public async createComment(@Param('postId', ParseUUIDPipe) postId: string, @Body(new ValidationPipe()) dto: CreateCommentDto) {
     const newComment = await this.linkPostService.addComment(postId, dto);
     return fillDto(CommentRdo, newComment.toPOJO());

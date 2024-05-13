@@ -20,6 +20,7 @@ import { CheckAuthGuard } from './guards/check-auth.guard';
     UsersController,
     LinkPostsController,
   ],
-  providers: [CheckAuthGuard],
+  providers: [CheckAuthGuard,
+  ],
 })
 export class AppModule {}
