@@ -1,26 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString, IsUUID, Length } from 'class-validator';
-
 import { AuthenticationValidateMessage } from '../authentication-module/authentication.constant';
 
-export class CreateUserDto {
+export class UpdateUserPasswordWithUserIdDto {
   @ApiProperty({
     description: 'User unique email',
     example: 'user@user.com'
   })
   @IsEmail({}, {message: AuthenticationValidateMessage.EmailNotValid})
-  public email!: string;
+  @IsOptional()
+  public email?: string;
 
   @ApiProperty({
-    description: 'User name',
-    example: 'Ivanov Keks',
-  })
-  @IsString()
-  @Length(3, 50)
-  public name!: string;
-
-  @ApiProperty({
-    description: 'User password',
+    description: 'Current user password',
     example: 'IvanovKeks00000',
   })
   @IsString()
@@ -28,10 +20,19 @@ export class CreateUserDto {
   public password!: string;
 
   @ApiProperty({
-    description: 'User avatar ID',
-    example: 'c3c05894-c1a9-422d-8752-4dc83b27b7b3',
+    description: 'New user password',
+    example: 'IvanovKeks00000',
   })
+  @IsString()
+  @Length(6, 12)
+  public newPassword!: string;
+
+  @ApiProperty({
+    description: 'User ID',
+    example: '134ce8babd-cc30-4805-9b12-d9420398e7c5',
+  })
+  @IsString()
   @IsUUID()
   @IsOptional()
-  public avatarId?: string;
+  public userId: string;
 }

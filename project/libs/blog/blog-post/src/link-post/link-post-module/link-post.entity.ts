@@ -42,9 +42,11 @@ export class LinkPostEntity extends Entity implements IStorableEntity<ILinkPost>
     this.text = post.text;
 
     const blogCommentFactory = new BlogCommentFactory();
-    for (const comment of post.comments) {
+    if (post.comments) {
+      for (const comment of post.comments) {
       const blogCommentEntity = blogCommentFactory.create(comment);
       this.comments.push(blogCommentEntity);
+    }
     }
   }
 

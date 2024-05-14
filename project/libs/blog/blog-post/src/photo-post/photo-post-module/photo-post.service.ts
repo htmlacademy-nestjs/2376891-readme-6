@@ -85,18 +85,6 @@ export class PhotoPostService {
     existPost.originalUserId = existPost.userId;
     existPost.userId = userId;
     existPost.isRepost = true;
-    // const blogPost = {
-    //   originalId: id,
-    //   id: '',
-    //   createdAt,
-    //   updatedAt: new Date(),
-    //   tags, url, description,
-    //   originalUserId: existPost.userId,
-    //   userId,
-    //   isRepost: true,
-    // };
-
-    // const postEntity = await new PhotoPostEntity(blogPost);
     await this.photoPostRepository.save(existPost);
 
     return existPost;

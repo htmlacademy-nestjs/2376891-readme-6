@@ -26,8 +26,6 @@ export class FileUploaderService {
   ) {}
 
   private getUploadDirectoryPath(): string {
-    // const [year, month] = dayjs().format('YYYY MM').split(' ');
-    // return join(this.config.uploadDirectory, year, month);
     return this.config.uploadDirectory;
   }
 

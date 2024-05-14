@@ -3,14 +3,12 @@ import { HttpService } from '@nestjs/axios';
 
 import { AxiosExceptionFilter } from './filters/axios-exception.filter';
 import { CheckAuthGuard } from './guards/check-auth.guard';
-// import { AddNewPostDto } from './dto/add-new-post.dto';
 import { CreateLinkPostDto, UpdateLinkPostDto, LinkPostRdo, LinkPostQuery, LinkPostWithPaginationRdo } from '@project/blog-post';
 import { CreateCommentDto } from '@project/blog-comment';
-// import { ApplicationServiceURL } from './app.constant';
-import { InjectUserIdInterceptor } from '@project/interceptors';
+import { InjectAuthorizationHeaderInterceptor, InjectUserIdInterceptor } from '@project/interceptors';
 import { ConfigService } from '@nestjs/config';
 
-@Controller('posts')
+@Controller('posts/link')
 @UseFilters(AxiosExceptionFilter)
 export class LinkPostsController {
 
@@ -19,23 +17,22 @@ export class LinkPostsController {
     private readonly configService: ConfigService,
   ) { }
 
-  @Post('link')
+  @Post('/')
   @UseGuards(CheckAuthGuard)
+  @UseInterceptors(InjectAuthorizationHeaderInterceptor)
   @UseInterceptors(InjectUserIdInterceptor)
   public async create(@Body() dto: CreateLinkPostDto): Promise<LinkPostRdo> {
-    const { data } = await this.httpService.axiosRef.post(`${this.configService.get<string>('BLOG_SERVICE_URL')}/link`, dto);
+    const { data } = await this.httpService.axiosRef.post(`${this.configService.get<string>('BLOG_SERVICE_URL')}/link`, dto, {params: {userId: dto.userId}});
     return data;
   }
 
-  @Get('link/:id')
-  // @UseGuards(CheckAuthGuard)
-  // @UseInterceptors(InjectUserIdInterceptor)
+  @Get(':id')
   public async show(@Param('id') id: string): Promise<LinkPostRdo> {
     const { data } = await this.httpService.axiosRef.post(`${this.configService.get<string>('BLOG_SERVICE_URL')}/link/:${id}`);
     return data;
   }
 
-  @Get('link')
+  @Get('/')
   @UseGuards(CheckAuthGuard)
   @UseInterceptors(InjectUserIdInterceptor)
   public async index(@Query() query: LinkPostQuery): Promise<LinkPostWithPaginationRdo> {
@@ -43,27 +40,25 @@ export class LinkPostsController {
     return data;
   }
 
-  @Patch('link/:postId')
+  @Patch(':postId')
   @UseGuards(CheckAuthGuard)
+  @UseInterceptors(InjectAuthorizationHeaderInterceptor)
   @UseInterceptors(InjectUserIdInterceptor)
   public async update(
-    @Body('userId') userId: string,
     @Param('postId') postId: string,
     @Body() dto: UpdateLinkPostDto): Promise<LinkPostRdo> {
-      const { data } = await this.httpService.axiosRef.post(`${this.configService.get<string>('BLOG_SERVICE_URL')}/link/:${postId}`, userId, dto);
+      const { data } = await this.httpService.axiosRef.post(`${this.configService.get<string>('BLOG_SERVICE_URL')}/link/${postId}`, dto, {params: {userId: dto.userId}});
       return data;
   }
 
-  @Delete('link/:postId')
+  @Delete(':postId')
   @UseGuards(CheckAuthGuard)
   @UseInterceptors(InjectUserIdInterceptor)
-  // @HttpCode(HttpStatus.NO_CONTENT)
   public async destroy(@Body('userId') userId: string, @Param('postId') postId: string): Promise<void> {
     await this.httpService.axiosRef.post(`${this.configService.get<string>('BLOG_SERVICE_URL')}/link/:${postId}`, userId);
-      // return data;
   }
 
-  @Post('link/:postId')
+  @Post(':postId')
   @UseGuards(CheckAuthGuard)
   @UseInterceptors(InjectUserIdInterceptor)
   public async repost(@Body('userId') userId: string, @Param('postId') postId: string): Promise<LinkPostRdo> {
@@ -71,7 +66,7 @@ export class LinkPostsController {
     return data;
   }
 
-  @Post('link/:postId/comments')
+  @Post(':postId/comments')
   @UseGuards(CheckAuthGuard)
   @UseInterceptors(InjectUserIdInterceptor)
   public async createComment(@Param('postId') postId: string, @Body() dto: CreateCommentDto) {

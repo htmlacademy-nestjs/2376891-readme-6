@@ -98,7 +98,6 @@ export class PhotoPostController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public async destroy(@Param('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<void> {
     await this.photoPostService.deletePost(userId, postId);
-    // return fillDto(LinkPostRdo, deletedPost.toPOJO());
   }
 
   @ApiResponse({
@@ -119,11 +118,9 @@ export class PhotoPostController {
   @ApiResponse({
     type: CommentRdo,
     status: HttpStatus.OK,
-    // description: PostResponseMessage.PostReposted,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    // description: PostResponseMessage.PostNotFound,
   })
   @Post('/:postId/comments')
   public async createComment(@Param('postId', ParseUUIDPipe) postId: string, @Body(new ValidationPipe()) dto: CreateCommentDto) {

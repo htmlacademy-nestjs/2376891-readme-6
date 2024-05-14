@@ -8,6 +8,8 @@ export class BlogUserEntity extends Entity implements IStorableEntity<IAuthUser>
   public email: string;
   public name: string;
   public passwordHash: string;
+  public createdAt: Date | string;
+  public avatarId: string;
 
   constructor(user: IAuthUser) {
     super();
@@ -23,6 +25,8 @@ export class BlogUserEntity extends Entity implements IStorableEntity<IAuthUser>
     this.email = user.email;
     this.name = user.name;
     this.passwordHash = user.passwordHash;
+    this.createdAt = user.createdAt ?? '';
+    this.avatarId = user.avatarId ?? '';
   }
 
   public toPOJO(): IAuthUser {
@@ -31,6 +35,8 @@ export class BlogUserEntity extends Entity implements IStorableEntity<IAuthUser>
       email: this.email,
       name: this.name,
       passwordHash: this.passwordHash,
+      createdAt: this.createdAt,
+      avatarId: this.avatarId,
     }
   }
 

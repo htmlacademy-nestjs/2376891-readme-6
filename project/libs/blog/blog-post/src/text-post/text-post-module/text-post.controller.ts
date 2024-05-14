@@ -98,7 +98,6 @@ export class TextPostController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public async destroy(@Param('userId') userId: string, @Param('postId', ParseUUIDPipe) postId: string): Promise<void> {
     await this.textPostService.deletePost(userId, postId);
-    // return fillDto(TextPostRdo, deletedPost.toPOJO());
   }
 
   @ApiResponse({
@@ -119,11 +118,9 @@ export class TextPostController {
   @ApiResponse({
     type: CommentRdo,
     status: HttpStatus.OK,
-    // description: PostResponseMessage.PostReposted,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    // description: PostResponseMessage.PostNotFound,
   })
   @Post('/:postId/comments')
   public async createComment(@Param('postId', ParseUUIDPipe) postId: string, @Body(new ValidationPipe()) dto: CreateCommentDto) {

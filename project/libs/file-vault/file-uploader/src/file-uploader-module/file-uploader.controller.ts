@@ -18,8 +18,11 @@ export class FileUploaderController {
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file'))
   public async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    const fileEntity = await this.fileUploaderService.saveFile(file);
-    return fillDto(UploadedFileRdo, fileEntity.toPOJO());
+    if (file) {
+      const fileEntity = await this.fileUploaderService.saveFile(file);
+      return fillDto(UploadedFileRdo, fileEntity.toPOJO());
+    }
+    return null;
   }
 
   @Get(':fileId')

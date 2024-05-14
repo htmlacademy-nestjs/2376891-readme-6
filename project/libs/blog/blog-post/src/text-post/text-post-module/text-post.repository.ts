@@ -46,7 +46,6 @@ export class TextPostRepository extends BasePostgresRepository<TextPostEntity, I
       }
     });
 
-    // entity.id = record.id;
     return await this.createEntityFromDocument(record as ITextPost);
   }
 

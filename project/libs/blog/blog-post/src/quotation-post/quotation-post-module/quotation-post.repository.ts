@@ -46,7 +46,6 @@ export class QuotationPostRepository extends BasePostgresRepository<QuotationPos
       }
     });
 
-    // entity.id = record.id;
     return await this.createEntityFromDocument(record as IQuotationPost);
   }
 

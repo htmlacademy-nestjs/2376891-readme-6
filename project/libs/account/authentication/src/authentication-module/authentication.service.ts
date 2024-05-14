@@ -27,12 +27,12 @@ export class AuthenticationService {
   ) { }
 
   public async register(dto: CreateUserDto): Promise<BlogUserEntity> {
-    const { email, name, password } = dto;
+    const { email, name, password, avatarId } = dto;
 
     const blogUser = {
       email,
       name,
-      avatar: '',
+      avatar: avatarId ?? '',
       passwordHash: ''
     };
 
@@ -44,7 +44,7 @@ export class AuthenticationService {
 
     const userEntity = await new BlogUserEntity(blogUser).setPassword(password);
 
-    this.blogUserRepository.save(userEntity);
+    await this.blogUserRepository.save(userEntity);
 
     return userEntity;
   }
@@ -84,7 +84,7 @@ export class AuthenticationService {
     return existUser;
   }
 
-  public async updateUser(id: string, dto: UpdateUserDto) {
+  public async updateUser(dto: UpdateUserDto, id: string) {
     const existUser = await this.blogUserRepository.findById(id);
     let hasChanges = false;
 
@@ -102,20 +102,13 @@ export class AuthenticationService {
     if (!hasChanges) {
       return existUser;
     }
-    // await this.linkPostRepository.update(existPost);
 
-    // return existPost;
-
-    // const updatedUser = new UserEntity({
-    //   ...existUser.toPOJO(),
-    //   ...dto,
-    // });
     await this.blogUserRepository.update(existUser);
     return existUser;
   }
 
-  public async updateUserPassword(id: string, dto: UpdateUserPasswordDto) {
-    const existUser = await this.blogUserRepository.findById(id);
+  public async updateUserPassword(dto: UpdateUserPasswordDto, email: string) {
+    const existUser = await this.blogUserRepository.findByEmail(email);
 
     if (! existUser) {
       throw new NotFoundException(AUTHENTICATION_RESPONSE_MESSAGES.USER_NOT_FOUND);

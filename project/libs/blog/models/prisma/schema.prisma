@@ -19,9 +19,7 @@ model Post {
   originalId     String?   @map("original_id")
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime? @updatedAt @map("updated_at")
-  // type           String
   type            PostType
-  // state           PostState @default(draft)
   tags           String[]
   userId         String    @map("user_id")
   originalUserId String?   @map("original_user_id")
@@ -71,8 +69,3 @@ enum PostType {
   text
   video
 }
-
-// enum PostState {
-//   draft
-//   published
-// }

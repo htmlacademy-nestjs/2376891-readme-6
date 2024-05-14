@@ -38,4 +38,13 @@ export class UpdateLinkPostDto {
   @IsNotEmpty()
   @IsOptional()
   public text?: string;
+
+  @ApiProperty({
+    description: 'The post author ID',
+    example: '134ce8babd-cc30-4805-9b12-d9420398e7c5',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  public userId?: string;
 }
